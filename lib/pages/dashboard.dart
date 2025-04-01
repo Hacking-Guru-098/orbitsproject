@@ -276,7 +276,7 @@ class DashboardPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const CustomAppBar(title: "Mitzvah", logoUrl: "assets/logo.png"),
+      appBar: const CustomAppBar(),
 
       body: Padding(
         padding: const EdgeInsets.only(left: 10, right: 10),
