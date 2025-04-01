@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:orbitsproject/widgets/CustomAppBar.dart';
 import 'package:orbitsproject/widgets/device_card.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
@@ -275,12 +276,13 @@ class DashboardPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Dashboard")),
+      appBar: const CustomAppBar(title: "Mitzvah", logoUrl: "assets/logo.png"),
+
       body: Padding(
         padding: const EdgeInsets.only(left: 10, right: 10),
         child: SingleChildScrollView(
           child: StaggeredGrid.count(
-            crossAxisCount: 2,
+            crossAxisCount: 1,
             children: [
               for (var device in devices)
                 StaggeredGridTile.fit(

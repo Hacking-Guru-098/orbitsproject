@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:orbitsproject/pages/dashboard.dart';
 import './signup.dart';
 
 class LoginPage extends StatelessWidget {
@@ -63,7 +64,14 @@ class LoginPage extends StatelessWidget {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => DashboardPage(),
+                        ),
+                      );
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.orange,
                       padding: const EdgeInsets.symmetric(vertical: 15),
