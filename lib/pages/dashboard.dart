@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:orbitsproject/pages/Profile.dart';
 import 'package:orbitsproject/widgets/CustomAppBar.dart';
 import 'package:orbitsproject/widgets/device_card.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
@@ -277,7 +278,46 @@ class DashboardPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const CustomAppBar(),
-
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            DrawerHeader(
+              decoration: BoxDecoration(color: Colors.green),
+              child: Column(
+                children: [
+                  Image.asset('assets/logo.png', height: 50),
+                  SizedBox(height: 10),
+                ],
+              ),
+            ),
+            _createDrawerItem(
+              icon: Icons.home,
+              text: 'Home',
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
+            _createDrawerItem(
+              icon: Icons.account_circle,
+              text: 'Account',
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ProfilePage()),
+                );
+              },
+            ),
+            _createDrawerItem(
+              icon: Icons.exit_to_app,
+              text: 'Logout',
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        ),
+      ),
       body: Padding(
         padding: const EdgeInsets.only(left: 10, right: 10),
         child: SingleChildScrollView(
@@ -296,13 +336,28 @@ class DashboardPage extends StatelessWidget {
                     status: device["status"],
                     changeStatus: device["changeStatus"],
                     emergency: device["emergency"],
-                    city: device["city"], // Pass city
+                    city: device["city"],
                   ),
                 ),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Widget _createDrawerItem({
+    required IconData icon,
+    required String text,
+    required GestureTapCallback onTap,
+  }) {
+    return ListTile(
+      leading: Icon(icon, size: 24),
+      title: Text(
+        text,
+        style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+      ),
+      onTap: onTap,
     );
   }
 }

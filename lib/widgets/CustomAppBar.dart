@@ -8,10 +8,16 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       backgroundColor: Colors.green,
       elevation: 0,
-      title: Row(
-        children: [
-          Image.asset('assets/logo.png', height: 40),
-        ],
+      title: Row(children: [Image.asset('assets/logo.png', height: 40)]),
+      leading: Builder(
+        builder: (context) {
+          return IconButton(
+            icon: const Icon(Icons.menu),
+            onPressed: () {
+              Scaffold.of(context).openDrawer();
+            },
+          );
+        },
       ),
       actions: [
         IconButton(icon: const Icon(Icons.notifications), onPressed: () {}),
