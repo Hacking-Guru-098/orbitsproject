@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:orbitsproject/pages/DeviceDetailPage.dart';
 import 'package:orbitsproject/pages/Profile.dart';
 import 'package:orbitsproject/widgets/CustomAppBar.dart';
 import 'package:orbitsproject/widgets/device_card.dart';
@@ -327,16 +328,29 @@ class DashboardPage extends StatelessWidget {
               for (var device in devices)
                 StaggeredGridTile.fit(
                   crossAxisCellCount: 1,
-                  child: DeviceCard(
-                    name: device["name"],
-                    id: device["id"],
-                    client: device["client"],
-                    district: device["district"],
-                    location: device["location"],
-                    status: device["status"],
-                    changeStatus: device["changeStatus"],
-                    emergency: device["emergency"],
-                    city: device["city"],
+                  child: GestureDetector(
+                    onTap: () {
+                      // Navigate to DeviceDetailPage and pass the device ID
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder:
+                              (context) =>
+                                  DeviceDetailPage(deviceId: device["id"]),
+                        ),
+                      );
+                    },
+                    child: DeviceCard(
+                      name: device["name"],
+                      id: device["id"],
+                      client: device["client"],
+                      district: device["district"],
+                      location: device["location"],
+                      status: device["status"],
+                      changeStatus: device["changeStatus"],
+                      emergency: device["emergency"],
+                      city: device["city"],
+                    ),
                   ),
                 ),
             ],
