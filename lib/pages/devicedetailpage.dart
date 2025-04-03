@@ -31,85 +31,48 @@ class DeviceDetailPage extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Text(
-                "Device ID : $deviceId", // Device ID passed here
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
+                "Device ID : $deviceId",
+                style: const TextStyle(fontSize: 18, color: Colors.black),
               ),
               const SizedBox(height: 5),
               const Text(
                 "\u{1F534} Offline",
                 style: TextStyle(color: Colors.red),
-              ), // Placeholder text for status
+              ),
               const SizedBox(height: 10),
 
               // First row with three infoCircles
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+              Wrap(
+                alignment: WrapAlignment.center,
+                spacing: 15,
+                runSpacing: 15,
                 children: [
-                  infoCircle(
-                    "NaN °C",
-                    "Indoor Temp",
-                    Icons.thermostat,
-                  ), // Placeholder value for indoor temp
-                  const SizedBox(width: 15),
-                  infoCircle(
-                    "ON",
-                    "Status",
-                    Icons.power_settings_new,
-                  ), // Placeholder for status
-                  const SizedBox(width: 15),
-                  infoCircle(
-                    "NaN °C",
-                    "Outdoor Temp",
-                    Icons.settings,
-                  ), // Placeholder value for outdoor temp
-                ],
-              ),
-
-              const SizedBox(height: 15),
-
-              // Second row with three infoCircles
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  infoCircle(
-                    "0",
-                    "Head Count",
-                    Icons.door_front_door,
-                  ), // Placeholder value for head count
-                  const SizedBox(width: 15),
-                  infoCircle(
-                    "0",
-                    "RPM",
-                    Icons.speed,
-                  ), // Placeholder value for RPM
-                  const SizedBox(width: 15),
-                  infoCircle(
-                    "0",
-                    "Power",
-                    Icons.electrical_services,
-                  ), // Placeholder value for power
+                  infoCircle("NaN °C", "Indoor Temp", Icons.thermostat),
+                  infoCircle("ON", "Status", Icons.power_settings_new),
+                  infoCircle("NaN °C", "Outdoor Temp", Icons.settings),
+                  infoCircle("0", "Head Count", Icons.door_front_door),
+                  infoCircle("0", "RPM", Icons.speed),
+                  infoCircle("0", "Power", Icons.electrical_services),
                 ],
               ),
 
               const SizedBox(height: 20),
 
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+              // Buttons section (wrap ensures responsive layout)
+              Wrap(
+                alignment: WrapAlignment.center,
+                spacing: 10,
+                runSpacing: 10,
                 children: [
                   actionButton("Change Status", Colors.orange),
-                  const SizedBox(width: 10),
                   actionButton("Refresh", Colors.green),
-                  const SizedBox(width: 10),
                   actionButton("See Records", Colors.red),
                 ],
               ),
+
               const SizedBox(height: 15),
               const Text(
-                "Last Updated Data on : 2025-01-09 10:58:46", // Placeholder text for last update
+                "Last Updated Data on : 2025-01-09 10:58:46",
                 style: TextStyle(fontSize: 14, color: Colors.black),
               ),
             ],
@@ -121,6 +84,7 @@ class DeviceDetailPage extends StatelessWidget {
 
   Widget infoCircle(String value, String label, IconData icon) {
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
         CircleAvatar(
           radius: 40,
@@ -138,14 +102,7 @@ class DeviceDetailPage extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 5),
-        Text(
-          label,
-          style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-          ),
-        ),
+        Text(label, style: const TextStyle(fontSize: 14, color: Colors.black)),
       ],
     );
   }

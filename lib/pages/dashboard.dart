@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:orbitsproject/pages/DeviceDetailPage.dart';
-import 'package:orbitsproject/pages/Profile.dart';
 import 'package:orbitsproject/widgets/CustomAppBar.dart';
+import 'package:orbitsproject/widgets/app_drawer.dart';
 import 'package:orbitsproject/widgets/device_card.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
@@ -294,7 +294,7 @@ class _DashboardPageState extends State<DashboardPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const CustomAppBar(),
-      drawer: _buildDrawer(context),
+      drawer: AppDrawer(username: "John Doe"),
       body: Padding(
         padding: const EdgeInsets.only(left: 10, right: 10, top: 10),
         child: SingleChildScrollView(
@@ -319,11 +319,7 @@ class _DashboardPageState extends State<DashboardPage> {
       children: [
         const Text(
           "Dashboard",
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-          ),
+          style: TextStyle(fontSize: 24, color: Colors.black),
         ),
         const Spacer(),
         _buildFilterButton(),
@@ -362,7 +358,6 @@ class _DashboardPageState extends State<DashboardPage> {
                   style: TextStyle(
                     color: Colors.white, // White text color
                     fontSize: 16,
-                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ],
@@ -374,167 +369,212 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   void _showFilterDialog() {
-    showGeneralDialog(
+    String? selectedDeviceName;
+    String? selectedDeviceId;
+    String? selectedClient;
+    String? selectedDistrict;
+    String? selectedCity;
+    String? selectedLocation;
+
+    showDialog(
       context: context,
-      barrierDismissible: true,
-      barrierLabel: "Filter Options",
-      transitionDuration: const Duration(
-        milliseconds: 100,
-      ), // Animation duration
-      pageBuilder: (context, animation, secondaryAnimation) {
-        return Center(
-          child: Material(
-            color: Colors.transparent,
-            child: Container(
-              width: MediaQuery.of(context).size.width * 0.8,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    height: 30,
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      color: Color(0xFF96FA67),
-                      borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(16),
-                        topRight: Radius.circular(16),
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              title: const Text("Filter Devices"),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Device Name Dropdown
+                    DropdownButtonFormField<String>(
+                      decoration: const InputDecoration(
+                        labelText: "Device Name",
                       ),
+                      value: selectedDeviceName,
+                      items:
+                          allDevices
+                              .map((device) => device["name"].toString())
+                              .toSet()
+                              .map(
+                                (name) => DropdownMenuItem(
+                                  value: name,
+                                  child: Text(name),
+                                ),
+                              )
+                              .toList(),
+                      onChanged: (value) {
+                        setDialogState(() => selectedDeviceName = value);
+                      },
                     ),
-                    child: Center(
-                      child: const Text(
-                        "Filters",
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+
+                    const SizedBox(height: 10),
+
+                    // Device ID Dropdown
+                    DropdownButtonFormField<String>(
+                      decoration: const InputDecoration(labelText: "Device ID"),
+                      value: selectedDeviceId,
+                      items:
+                          allDevices
+                              .map((device) => device["id"].toString())
+                              .toSet()
+                              .map(
+                                (id) => DropdownMenuItem(
+                                  value: id,
+                                  child: Text(id),
+                                ),
+                              )
+                              .toList(),
+                      onChanged: (value) {
+                        setDialogState(() => selectedDeviceId = value);
+                      },
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                  _buildFilterOptions(), // Filter options widget
-                  const SizedBox(height: 16),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop(); // Close the dialog
-                    },
-                    child: const Text("Close"),
-                  ),
-                ],
+
+                    const SizedBox(height: 10),
+
+                    // Client Dropdown
+                    DropdownButtonFormField<String>(
+                      decoration: const InputDecoration(labelText: "Client"),
+                      value: selectedClient,
+                      items:
+                          allDevices
+                              .map((device) => device["client"].toString())
+                              .toSet()
+                              .map(
+                                (client) => DropdownMenuItem(
+                                  value: client,
+                                  child: Text(client),
+                                ),
+                              )
+                              .toList(),
+                      onChanged: (value) {
+                        setDialogState(() => selectedClient = value);
+                      },
+                    ),
+
+                    const SizedBox(height: 10),
+
+                    // District Dropdown
+                    DropdownButtonFormField<String>(
+                      decoration: const InputDecoration(labelText: "District"),
+                      value: selectedDistrict,
+                      items:
+                          allDevices
+                              .map((device) => device["district"].toString())
+                              .toSet()
+                              .map(
+                                (district) => DropdownMenuItem(
+                                  value: district,
+                                  child: Text(district),
+                                ),
+                              )
+                              .toList(),
+                      onChanged: (value) {
+                        setDialogState(() => selectedDistrict = value);
+                      },
+                    ),
+
+                    const SizedBox(height: 10),
+
+                    // City Dropdown
+                    DropdownButtonFormField<String>(
+                      decoration: const InputDecoration(labelText: "City"),
+                      value: selectedCity,
+                      items:
+                          allDevices
+                              .map((device) => device["city"].toString())
+                              .toSet()
+                              .map(
+                                (city) => DropdownMenuItem(
+                                  value: city,
+                                  child: Text(city),
+                                ),
+                              )
+                              .toList(),
+                      onChanged: (value) {
+                        setDialogState(() => selectedCity = value);
+                      },
+                    ),
+
+                    const SizedBox(height: 10),
+
+                    // Location Dropdown
+                    DropdownButtonFormField<String>(
+                      decoration: const InputDecoration(labelText: "Location"),
+                      value: selectedLocation,
+                      items:
+                          allDevices
+                              .map((device) => device["location"].toString())
+                              .toSet()
+                              .map(
+                                (location) => DropdownMenuItem(
+                                  value: location,
+                                  child: Text(location),
+                                ),
+                              )
+                              .toList(),
+                      onChanged: (value) {
+                        setDialogState(() => selectedLocation = value);
+                      },
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    // Apply Button
+                    ElevatedButton(
+                      onPressed: () {
+                        _applyFilters(
+                          deviceName: selectedDeviceName,
+                          deviceId: selectedDeviceId,
+                          client: selectedClient,
+                          district: selectedDistrict,
+                          city: selectedCity,
+                          location: selectedLocation,
+                        );
+                        Navigator.pop(context);
+                      },
+                      child: const Text("Apply Filters"),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ),
-        );
-      },
-      transitionBuilder: (context, animation, secondaryAnimation, child) {
-        return FadeTransition(
-          opacity: CurvedAnimation(
-            parent: animation,
-            curve: Curves.easeInOut, // Smooth fade-in animation
-          ),
-          child: ScaleTransition(
-            scale: Tween<double>(begin: 0.9, end: 1.0).animate(
-              CurvedAnimation(
-                parent: animation,
-                curve: Curves.easeInOut, // Smooth scaling animation
-              ),
-            ),
-            child: child,
-          ),
+            );
+          },
         );
       },
     );
   }
 
-  Widget _buildStatusFilterDropdown() {
-    return Container(
-      width: 120, // Set a fixed width for the dropdown
-      height: 38, // Set a fixed height for the dropdown
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-      decoration: BoxDecoration(
-        color: Colors.white, // Background color for the dropdown button
-        borderRadius: BorderRadius.circular(8), // Rounded corners
-        border: Border.all(color: Colors.grey[300]!), // Border color
-      ),
-      child: DropdownButton<String>(
-        value: selectedStatus, // Bind the selected value to the state variable
-        isExpanded: true, // Make the dropdown expand to full width
-        underline: const SizedBox(), // Remove the default underline
-        icon: const Icon(
-          Icons.arrow_drop_down,
-          color: Colors.black,
-        ), // Dropdown icon
-        style: const TextStyle(
-          color: Colors.black, // Text color
-          fontSize: 16, // Font size
-          fontWeight: FontWeight.w500, // Font weight
-        ),
-        items: [
-          DropdownMenuItem(
-            value: "All",
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(8), // Rounded corners
-              child: Container(
-                color: Colors.grey[200], // Background color for "All"
-                padding: const EdgeInsets.all(4), // Padding around the text
-                child: const Text("All"),
-              ),
-            ),
-          ),
-          DropdownMenuItem(
-            value: "Active",
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(8), // Rounded corners
-              child: Container(
-                color: Colors.green[100], // Background color for "Active"
-                padding: const EdgeInsets.all(4),
-                child: const Text("Active"),
-              ),
-            ),
-          ),
-          DropdownMenuItem(
-            value: "Inactive",
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(8), // Rounded corners
-              child: Container(
-                color: Colors.red[100], // Background color for "Inactive"
-                padding: const EdgeInsets.all(4),
-                child: const Text("Inactive"),
-              ),
-            ),
-          ),
-          DropdownMenuItem(
-            value: "Danger",
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(8), // Rounded corners
-              child: Container(
-                color: Colors.orange[100], // Background color for "Danger"
-                padding: const EdgeInsets.all(4),
-                child: const Text("Danger"),
-              ),
-            ),
-          ),
-        ],
-        onChanged: (value) {
-          setState(() {
-            selectedStatus = value!; // Update the selected value
-          });
-          print("Selected: $value");
-        },
-      ),
-    );
-  }
+  void _applyFilters({
+    String? deviceName,
+    String? deviceId,
+    String? client,
+    String? district,
+    String? city,
+    String? location,
+  }) {
+    setState(() {
+      filteredDevices =
+          allDevices.where((device) {
+            bool matchesDeviceName =
+                deviceName == null || device["name"] == deviceName;
+            bool matchesDeviceId = deviceId == null || device["id"] == deviceId;
+            bool matchesClient = client == null || device["client"] == client;
+            bool matchesDistrict =
+                district == null || device["district"] == district;
+            bool matchesCity = city == null || device["city"] == city;
+            bool matchesLocation =
+                location == null || device["location"] == location;
 
-  Widget _buildFilterOptions() {
-    return Column(
-      children: [
-        // Add your filter options here
-        // For example, checkboxes or dropdowns for filtering devices
-      ],
-    );
+            return matchesDeviceName &&
+                matchesDeviceId &&
+                matchesClient &&
+                matchesDistrict &&
+                matchesCity &&
+                matchesLocation;
+          }).toList();
+    });
   }
 
   // Device Summary Widget
@@ -549,14 +589,9 @@ class _DashboardPageState extends State<DashboardPage> {
         children: [
           Text(
             "Devices: ${filteredDevices.length}",
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-              color: Colors.white,
-            ),
+            style: const TextStyle(fontSize: 16, color: Colors.white),
           ),
           const Spacer(),
-          _buildStatusFilterDropdown(),
         ],
       ),
     );
@@ -595,65 +630,6 @@ class _DashboardPageState extends State<DashboardPage> {
             ),
           ),
       ],
-    );
-  }
-
-  // Drawer Widget
-  Widget _buildDrawer(BuildContext context) {
-    return Drawer(
-      child: ListView(
-        padding: EdgeInsets.zero,
-        children: <Widget>[
-          DrawerHeader(
-            decoration: const BoxDecoration(color: Colors.green),
-            child: Column(
-              children: [
-                Image.asset('assets/logo.png', height: 50),
-                const SizedBox(height: 10),
-              ],
-            ),
-          ),
-          _createDrawerItem(
-            icon: Icons.home,
-            text: 'Home',
-            onTap: () {
-              Navigator.pop(context);
-            },
-          ),
-          _createDrawerItem(
-            icon: Icons.account_circle,
-            text: 'Account',
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => ProfilePage()),
-              );
-            },
-          ),
-          _createDrawerItem(
-            icon: Icons.exit_to_app,
-            text: 'Logout',
-            onTap: () {
-              Navigator.pop(context);
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _createDrawerItem({
-    required IconData icon,
-    required String text,
-    required GestureTapCallback onTap,
-  }) {
-    return ListTile(
-      leading: Icon(icon, size: 24),
-      title: Text(
-        text,
-        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-      ),
-      onTap: onTap,
     );
   }
 }

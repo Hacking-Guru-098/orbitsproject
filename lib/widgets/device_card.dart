@@ -45,18 +45,18 @@ class DeviceCardState extends State<DeviceCard> {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       elevation: 5,
       child: Column(
-        mainAxisSize: MainAxisSize.min, // Makes height dynamic
+        mainAxisSize: MainAxisSize.min,
         children: [
           Container(
             height: 30,
             width: double.infinity,
             decoration: BoxDecoration(
-              gradient: LinearGradient(
+              gradient: const LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [Color(0xFF85F648), Color(0xFFCFE9C1)],
               ),
-              borderRadius: BorderRadius.only(
+              borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(10),
                 topRight: Radius.circular(10),
               ),
@@ -64,17 +64,20 @@ class DeviceCardState extends State<DeviceCard> {
             child: Center(
               child: Text(
                 widget.name,
-                style: TextStyle(color: Colors.black, fontSize: 16),
+                style: const TextStyle(
+                  color: Colors.black,
+                  fontSize: 16,
+                ),
               ),
             ),
           ),
           Container(
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.only(
+              borderRadius: const BorderRadius.only(
                 bottomLeft: Radius.circular(10),
                 bottomRight: Radius.circular(10),
               ),
-              gradient: LinearGradient(
+              gradient: const LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [Color(0xFFB6B8B5), Color(0xFF373B35)],
@@ -117,10 +120,9 @@ class DeviceCardState extends State<DeviceCard> {
         children: [
           Text(
             label,
-            style: TextStyle(
+            style: const TextStyle(
               color: Colors.white,
               fontSize: 14,
-              fontWeight: FontWeight.bold,
             ),
           ),
           Icon(
@@ -145,17 +147,16 @@ class DeviceCardState extends State<DeviceCard> {
           Flexible(
             child: Text(
               label,
-              style: TextStyle(
+              style: const TextStyle(
                 color: Colors.white,
                 fontSize: 14,
-                fontWeight: FontWeight.bold,
               ),
-              softWrap: true, // Enables text wrapping
-              overflow: TextOverflow.visible, // Ensures text is fully visible
+              softWrap: true,
+              overflow: TextOverflow.visible,
             ),
           ),
           Transform.scale(
-            scale: 0.8, // Adjust the scale factor to make the Switch smaller
+            scale: 0.8,
             child: Switch(
               value: changeStatus,
               onChanged: onChanged,
@@ -177,10 +178,9 @@ class DeviceCardState extends State<DeviceCard> {
         children: [
           Text(
             label,
-            style: TextStyle(
+            style: const TextStyle(
               color: Colors.white,
               fontSize: 14,
-              fontWeight: FontWeight.bold,
             ),
           ),
           Container(
@@ -200,7 +200,7 @@ class DeviceCardState extends State<DeviceCard> {
                   : status == DeviceStatus.active
                   ? "Active"
                   : "Danger",
-              style: TextStyle(color: Colors.white, fontSize: 14),
+              style: const TextStyle(color: Colors.white, fontSize: 14),
             ),
           ),
         ],
@@ -216,16 +216,15 @@ class DeviceCardState extends State<DeviceCard> {
         children: [
           Text(
             label,
-            style: TextStyle(
+            style: const TextStyle(
               color: Colors.white,
               fontSize: 14,
-              fontWeight: FontWeight.bold,
             ),
           ),
           Flexible(
             child: Text(
               value,
-              style: TextStyle(color: Colors.white, fontSize: 14),
+              style: const TextStyle(color: Colors.white, fontSize: 14),
               overflow: TextOverflow.ellipsis,
             ),
           ),

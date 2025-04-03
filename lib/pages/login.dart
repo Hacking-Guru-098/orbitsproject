@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:orbitsproject/pages/dashboard.dart';
-import './signup.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
@@ -18,7 +17,7 @@ class LoginPage extends StatelessWidget {
                 // Title
                 const Text(
                   "Sign in",
-                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 28),
                 ),
                 const SizedBox(height: 20),
 
@@ -73,7 +72,7 @@ class LoginPage extends StatelessWidget {
                       );
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.orange,
+                      backgroundColor: Colors.green,
                       padding: const EdgeInsets.symmetric(vertical: 15),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
@@ -83,39 +82,13 @@ class LoginPage extends StatelessWidget {
                       "Sign in",
                       style: TextStyle(
                         fontSize: 18,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
+                        color: Colors.white
                       ),
                     ),
                   ),
                 ),
                 const SizedBox(height: 20),
 
-                // Register Link
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text("Don't have an account? "),
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const SignUpPage(),
-                          ),
-                        );
-                      },
-                      child: const Text(
-                        "Sign up",
-                        style: TextStyle(
-                          color: Colors.blue,
-                          fontWeight: FontWeight.bold,
-                          decoration: TextDecoration.underline,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
                 const SizedBox(height: 20),
 
                 // OR Divider
