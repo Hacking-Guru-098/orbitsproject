@@ -281,45 +281,13 @@ class _DashboardPageState extends State<DashboardPage> {
   ];
 
   List<Map<String, dynamic>> filteredDevices = [];
-  String selectedFilter = 'All';
-
-  // Create a Dictionary to map status strings to There Color
-  static const Map<String, Color> statusColors = {
-    'All': Colors.blue,
-    'Active': Colors.green,
-    'Inactive': Colors.orange,
-    'Danger': Colors.red,
-  };
+  String selectedStatus = "All"; // State variable to track the selected value
 
   @override
   void initState() {
     super.initState();
     // Initially, show all devices
     filteredDevices = allDevices;
-  }
-
-  void _fetchFilteredData(String filter) {
-    setState(() {
-      selectedFilter = filter; // Update the selected filter
-      if (filter == 'All') {
-        filteredDevices = allDevices;
-      } else if (filter == 'Active') {
-        filteredDevices =
-            allDevices
-                .where((device) => device['status'] == DeviceStatus.active)
-                .toList();
-      } else if (filter == 'Inactive') {
-        filteredDevices =
-            allDevices
-                .where((device) => device['status'] == DeviceStatus.inActive)
-                .toList();
-      } else if (filter == 'Danger') {
-        filteredDevices =
-            allDevices
-                .where((device) => device['status'] == DeviceStatus.danger)
-                .toList();
-      }
-    });
   }
 
   @override
@@ -345,14 +313,6 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 
-  // Selected Filter Label Widget
-  Widget _buildSelectedFilterLabel() {
-    return _buildFilterItem(
-      statusColors[selectedFilter] ?? Colors.blue,
-      selectedFilter,
-    );
-  }
-
   // Header Widget
   Widget _buildHeader() {
     return Row(
@@ -371,81 +331,209 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 
-  // Filter Button Widget
   Widget _buildFilterButton() {
-    return PopupMenuButton<String>(
-      onSelected: (value) {
-        _fetchFilteredData(value); // Fetch data based on the selected filter
-      },
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      itemBuilder: (BuildContext context) => _buildPopupMenuItems(),
-      child: Ink(
-        decoration: BoxDecoration(
-          color: Colors.green,
-          borderRadius: BorderRadius.circular(8.0),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Row(
-            children: const [
-              Icon(Icons.filter_list, color: Colors.black, size: 20),
-              SizedBox(width: 8),
-              Text(
-                "Filter",
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
+    return Material(
+      color:
+          Colors.transparent, // Transparent background for the Material widget
+      child: InkWell(
+        onTap:
+            () =>
+                _showFilterDialog(), // Extracted dialog logic into a separate method
+        borderRadius: BorderRadius.circular(
+          8.0,
+        ), // Rounded corners for ripple effect
+        child: Ink(
+          decoration: BoxDecoration(
+            color: Colors.green, // Green background
+            borderRadius: BorderRadius.circular(8.0), // Rounded corners
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            child: Row(
+              children: const [
+                Icon(
+                  Icons.filter_list,
+                  color: Colors.white,
+                  size: 20,
+                ), // Filter icon
+                SizedBox(width: 8), // Space between icon and text
+                Text(
+                  "Filter",
+                  style: TextStyle(
+                    color: Colors.white, // White text color
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  List<PopupMenuEntry<String>> _buildPopupMenuItems() {
-    return [
-      PopupMenuItem<String>(
-        value: 'All',
-        child: _buildFilterItem(
-          statusColors['All'] ?? Colors.blue,
-          'All',
-        ),
-      ),
-      PopupMenuItem<String>(
-        value: 'Active',
-        child: _buildFilterItem(
-          statusColors['Active'] ?? Colors.green,
-          'Active',
-        ),
-      ),
-      PopupMenuItem<String>(
-        value: 'Inactive',
-        child: _buildFilterItem(
-          statusColors['Inactive'] ?? Colors.orange,
-          'Inactive',
-        ),
-      ),
-      PopupMenuItem<String>(
-        value: 'Danger',
-        child: _buildFilterItem(
-          statusColors['Danger'] ?? Colors.red,
-          'Danger',
-        ),
-      ),
-    ];
+  void _showFilterDialog() {
+    showGeneralDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: "Filter Options",
+      transitionDuration: const Duration(
+        milliseconds: 100,
+      ), // Animation duration
+      pageBuilder: (context, animation, secondaryAnimation) {
+        return Center(
+          child: Material(
+            color: Colors.transparent,
+            child: Container(
+              width: MediaQuery.of(context).size.width * 0.8,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    height: 30,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: Color(0xFF96FA67),
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(16),
+                        topRight: Radius.circular(16),
+                      ),
+                    ),
+                    child: Center(
+                      child: const Text(
+                        "Filters",
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  _buildFilterOptions(), // Filter options widget
+                  const SizedBox(height: 16),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop(); // Close the dialog
+                    },
+                    child: const Text("Close"),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+      transitionBuilder: (context, animation, secondaryAnimation, child) {
+        return FadeTransition(
+          opacity: CurvedAnimation(
+            parent: animation,
+            curve: Curves.easeInOut, // Smooth fade-in animation
+          ),
+          child: ScaleTransition(
+            scale: Tween<double>(begin: 0.9, end: 1.0).animate(
+              CurvedAnimation(
+                parent: animation,
+                curve: Curves.easeInOut, // Smooth scaling animation
+              ),
+            ),
+            child: child,
+          ),
+        );
+      },
+    );
   }
 
-  Widget _buildFilterItem(Color color, String name) {
+  Widget _buildStatusFilterDropdown() {
     return Container(
-      padding: const EdgeInsets.all(8),
+      width: 120, // Set a fixed width for the dropdown
+      height: 38, // Set a fixed height for the dropdown
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
       decoration: BoxDecoration(
-        color: color, // Background color for this item
-        borderRadius: BorderRadius.circular(8.0),
+        color: Colors.white, // Background color for the dropdown button
+        borderRadius: BorderRadius.circular(8), // Rounded corners
+        border: Border.all(color: Colors.grey[300]!), // Border color
       ),
-      child: Text(name, style: TextStyle(color: Colors.white)),
+      child: DropdownButton<String>(
+        value: selectedStatus, // Bind the selected value to the state variable
+        isExpanded: true, // Make the dropdown expand to full width
+        underline: const SizedBox(), // Remove the default underline
+        icon: const Icon(
+          Icons.arrow_drop_down,
+          color: Colors.black,
+        ), // Dropdown icon
+        style: const TextStyle(
+          color: Colors.black, // Text color
+          fontSize: 16, // Font size
+          fontWeight: FontWeight.w500, // Font weight
+        ),
+        items: [
+          DropdownMenuItem(
+            value: "All",
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8), // Rounded corners
+              child: Container(
+                color: Colors.grey[200], // Background color for "All"
+                padding: const EdgeInsets.all(4), // Padding around the text
+                child: const Text("All"),
+              ),
+            ),
+          ),
+          DropdownMenuItem(
+            value: "Active",
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8), // Rounded corners
+              child: Container(
+                color: Colors.green[100], // Background color for "Active"
+                padding: const EdgeInsets.all(4),
+                child: const Text("Active"),
+              ),
+            ),
+          ),
+          DropdownMenuItem(
+            value: "Inactive",
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8), // Rounded corners
+              child: Container(
+                color: Colors.red[100], // Background color for "Inactive"
+                padding: const EdgeInsets.all(4),
+                child: const Text("Inactive"),
+              ),
+            ),
+          ),
+          DropdownMenuItem(
+            value: "Danger",
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8), // Rounded corners
+              child: Container(
+                color: Colors.orange[100], // Background color for "Danger"
+                padding: const EdgeInsets.all(4),
+                child: const Text("Danger"),
+              ),
+            ),
+          ),
+        ],
+        onChanged: (value) {
+          setState(() {
+            selectedStatus = value!; // Update the selected value
+          });
+          print("Selected: $value");
+        },
+      ),
+    );
+  }
+
+  Widget _buildFilterOptions() {
+    return Column(
+      children: [
+        // Add your filter options here
+        // For example, checkboxes or dropdowns for filtering devices
+      ],
     );
   }
 
@@ -460,7 +548,7 @@ class _DashboardPageState extends State<DashboardPage> {
       child: Row(
         children: [
           Text(
-            "Total Devices: ${filteredDevices.length}",
+            "Devices: ${filteredDevices.length}",
             style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w500,
@@ -468,7 +556,7 @@ class _DashboardPageState extends State<DashboardPage> {
             ),
           ),
           const Spacer(),
-          _buildSelectedFilterLabel(),
+          _buildStatusFilterDropdown(),
         ],
       ),
     );
