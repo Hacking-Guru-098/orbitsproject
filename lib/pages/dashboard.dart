@@ -4,6 +4,9 @@ import 'package:orbitsproject/widgets/CustomAppBar.dart';
 import 'package:orbitsproject/widgets/app_drawer.dart';
 import 'package:orbitsproject/widgets/device_card.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class DashboardPage extends StatefulWidget {
   DashboardPage({super.key});
@@ -13,307 +16,143 @@ class DashboardPage extends StatefulWidget {
 }
 
 class _DashboardPageState extends State<DashboardPage> {
-  final List<Map<String, dynamic>> allDevices = [
-    {
-      "name": "Device 1",
-      "id": "12345",
-      "client": "Client A",
-      "district": "District 1",
-      "location": "Location 1",
-      "status": DeviceStatus.active,
-      "changeStatus": true,
-      "emergency": false,
-      "city": "City A",
-    },
-    {
-      "name": "Device 2",
-      "id": "67890",
-      "client": "Client B",
-      "district": "District 2",
-      "location": "Location 2",
-      "status": DeviceStatus.inActive,
-      "changeStatus": true,
-      "emergency": true,
-      "city": "City B",
-    },
-    {
-      "name": "Device 3",
-      "id": "54321",
-      "client": "Client C",
-      "district": "District 3",
-      "location": "Location 3",
-      "status": DeviceStatus.danger,
-      "changeStatus": true,
-      "emergency": false,
-      "city": "City C",
-    },
-    {
-      "name": "Device 4",
-      "id": "98765",
-      "client": "Client D",
-      "district": "District 4",
-      "location": "Location 4",
-      "status": DeviceStatus.active,
-      "changeStatus": false,
-      "emergency": true,
-      "city": "City D",
-    },
-    {
-      "name": "Device 5",
-      "id": "11223",
-      "client": "Client E",
-      "district": "District 5",
-      "location": "Location 5",
-      "status": DeviceStatus.inActive,
-      "changeStatus": true,
-      "emergency": false,
-      "city": "City E",
-    },
-    {
-      "name": "Device 6",
-      "id": "44556",
-      "client": "Client F",
-      "district": "District 6",
-      "location": "Location 6",
-      "status": DeviceStatus.danger,
-      "changeStatus": false,
-      "emergency": true,
-      "city": "City F",
-    },
-    {
-      "name": "Device 7",
-      "id": "77889",
-      "client": "Client G",
-      "district": "District 7",
-      "location": "Location 7",
-      "status": DeviceStatus.active,
-      "changeStatus": true,
-      "emergency": false,
-      "city": "City G",
-    },
-    {
-      "name": "Device 8",
-      "id": "99000",
-      "client": "Client H",
-      "district": "District 8",
-      "location": "Location 8",
-      "status": DeviceStatus.inActive,
-      "changeStatus": false,
-      "emergency": true,
-      "city": "City H",
-    },
-    {
-      "name": "Device 1",
-      "id": "12345",
-      "client": "Client A",
-      "district": "District 1",
-      "location": "Location 1",
-      "status": DeviceStatus.active,
-      "changeStatus": true,
-      "emergency": false,
-      "city": "City A",
-    },
-    {
-      "name": "Device 2",
-      "id": "67890",
-      "client": "Client B",
-      "district": "District 2",
-      "location": "Location 2",
-      "status": DeviceStatus.inActive,
-      "changeStatus": false,
-      "emergency": true,
-      "city": "City B",
-    },
-    {
-      "name": "Device 3",
-      "id": "54321",
-      "client": "Client C",
-      "district": "District 3",
-      "location": "Location 3",
-      "status": DeviceStatus.danger,
-      "changeStatus": true,
-      "emergency": false,
-      "city": "City C",
-    },
-    {
-      "name": "Device 4",
-      "id": "98765",
-      "client": "Client D",
-      "district": "District 4",
-      "location": "Location 4",
-      "status": DeviceStatus.active,
-      "changeStatus": false,
-      "emergency": true,
-      "city": "City D",
-    },
-    {
-      "name": "Device 5",
-      "id": "11223",
-      "client": "Client E",
-      "district": "District 5",
-      "location": "Location 5",
-      "status": DeviceStatus.inActive,
-      "changeStatus": true,
-      "emergency": false,
-      "city": "City E",
-    },
-    {
-      "name": "Device 6",
-      "id": "44556",
-      "client": "Client F",
-      "district": "District 6",
-      "location": "Location 6",
-      "status": DeviceStatus.danger,
-      "changeStatus": false,
-      "emergency": true,
-      "city": "City F",
-    },
-    {
-      "name": "Device 7",
-      "id": "77889",
-      "client": "Client G",
-      "district": "District 7",
-      "location": "Location 7",
-      "status": DeviceStatus.active,
-      "changeStatus": true,
-      "emergency": false,
-      "city": "City G",
-    },
-    {
-      "name": "Device 8",
-      "id": "99000",
-      "client": "Client H",
-      "district": "District 8",
-      "location": "Location 8",
-      "status": DeviceStatus.inActive,
-      "changeStatus": false,
-      "emergency": true,
-      "city": "City H",
-    },
-    {
-      "name": "Device 1",
-      "id": "12345",
-      "client": "Client A",
-      "district": "District 1",
-      "location": "Location 1",
-      "status": DeviceStatus.active,
-      "changeStatus": true,
-      "emergency": false,
-      "city": "City A",
-    },
-    {
-      "name": "Device 2",
-      "id": "67890",
-      "client": "Client B",
-      "district": "District 2",
-      "location": "Location 2",
-      "status": DeviceStatus.inActive,
-      "changeStatus": false,
-      "emergency": true,
-      "city": "City B",
-    },
-    {
-      "name": "Device 3",
-      "id": "54321",
-      "client": "Client C",
-      "district": "District 3",
-      "location": "Location 3",
-      "status": DeviceStatus.danger,
-      "changeStatus": true,
-      "emergency": false,
-      "city": "City C",
-    },
-    {
-      "name": "Device 4",
-      "id": "98765",
-      "client": "Client D",
-      "district": "District 4",
-      "location": "Location 4",
-      "status": DeviceStatus.active,
-      "changeStatus": false,
-      "emergency": true,
-      "city": "City D",
-    },
-    {
-      "name": "Device 5",
-      "id": "11223",
-      "client": "Client E",
-      "district": "District 5",
-      "location": "Location 5",
-      "status": DeviceStatus.inActive,
-      "changeStatus": true,
-      "emergency": false,
-      "city": "City E",
-    },
-    {
-      "name": "Device 6",
-      "id": "44556",
-      "client": "Client F",
-      "district": "District 6",
-      "location": "Location 6",
-      "status": DeviceStatus.danger,
-      "changeStatus": false,
-      "emergency": true,
-      "city": "City F",
-    },
-    {
-      "name": "Device 7",
-      "id": "77889",
-      "client": "Client G",
-      "district": "District 7",
-      "location": "Location 7",
-      "status": DeviceStatus.active,
-      "changeStatus": true,
-      "emergency": false,
-      "city": "City G",
-    },
-    {
-      "name": "Device 8",
-      "id": "99000",
-      "client": "Client H",
-      "district": "District 8",
-      "location": "Location 8",
-      "status": DeviceStatus.inActive,
-      "changeStatus": false,
-      "emergency": true,
-      "city": "City H",
-    },
-  ];
+  String username = '';
+  String password = '';
+  bool isLoading = true;
 
+  List<Map<String, dynamic>> allDevices = [];
   List<Map<String, dynamic>> filteredDevices = [];
-  String selectedStatus = "All"; // State variable to track the selected value
 
   @override
   void initState() {
     super.initState();
-    // Initially, show all devices
-    filteredDevices = allDevices;
+    _loadUserCredentials();
+  }
+
+  Future<void> _loadUserCredentials() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      username = prefs.getString('username') ?? '';
+      password = prefs.getString('password') ?? '';
+    });
+    _fetchDevices();
+  }
+
+  Future<void> _fetchDevices() async {
+    setState(() => isLoading = true);
+
+    try {
+      final getNameUrl = Uri.parse(
+        'https://mitzvah-software-for-smart-air-curtain.onrender.com/get-name',
+      );
+
+      final getNameResponse = await http.post(
+        getNameUrl,
+        body: jsonEncode({"username": username, "password": password}),
+        headers: {"Content-Type": "application/json"},
+      );
+
+      if (getNameResponse.statusCode == 200) {
+        final getNameData = jsonDecode(getNameResponse.body);
+
+        final flag = getNameData["flag"];
+        Map<String, String> requestBodyForDevices = {
+          "cs": "",
+          "ds": "",
+          "cis": "",
+          "ls": "",
+          "dname": "",
+          "refname": "",
+        };
+
+        if (flag == "client") {
+          requestBodyForDevices["cs"] = getNameData["name"] ?? "";
+        }
+
+        final deviceUrl = Uri.parse(
+          'https://mitzvah-software-for-smart-air-curtain.onrender.com/device-select',
+        );
+
+        final deviceResponse = await http.post(
+          deviceUrl,
+          body: jsonEncode(requestBodyForDevices),
+          headers: {"Content-Type": "application/json"},
+        );
+
+        if (deviceResponse.statusCode == 200) {
+          final List<dynamic> deviceList = jsonDecode(deviceResponse.body);
+
+          final List<Map<String, dynamic>> mappedDevices =
+              deviceList.map((device) {
+                return {
+                  "name": device["device-name"],
+                  "id": device["uniqueId"],
+                  "client": device["name"],
+                  "district": device["district"],
+                  "city": device["city"],
+                  "location": device["location"],
+                  "status": device["status"],
+                  "changeStatus": device["changeStatus"],
+                  "emergency": device["emergency"],
+                };
+              }).toList();
+
+          setState(() {
+            allDevices = mappedDevices;
+            filteredDevices = allDevices;
+            isLoading = false;
+          });
+        } else {
+          throw Exception("Device fetch failed");
+        }
+      } else {
+        throw Exception("Initial authentication failed");
+      }
+    } catch (e) {
+      setState(() => isLoading = false);
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error: ${e.toString()}')));
+    }
+  }
+
+  DeviceStatus _getStatusFromString(String? status) {
+    switch (status?.toLowerCase()) {
+      case 'active':
+        return DeviceStatus.active;
+      case 'danger':
+        return DeviceStatus.danger;
+      default:
+        return DeviceStatus.inActive;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const CustomAppBar(),
-      drawer: AppDrawer(username: "John Doe"),
+      drawer: AppDrawer(username: username),
       body: Padding(
         padding: const EdgeInsets.only(left: 10, right: 10, top: 10),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildHeader(),
-              const SizedBox(height: 10),
-              _buildDeviceSummary(),
-              const SizedBox(height: 10),
-              _buildDeviceGrid(context),
-            ],
-          ),
-        ),
+        child:
+            isLoading
+                ? Center(child: CircularProgressIndicator())
+                : SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildHeader(),
+                      const SizedBox(height: 10),
+                      _buildDeviceSummary(),
+                      const SizedBox(height: 10),
+                      _buildDeviceGrid(context),
+                    ],
+                  ),
+                ),
       ),
     );
   }
 
-  // Header Widget
   Widget _buildHeader() {
     return Row(
       children: [
@@ -322,6 +161,10 @@ class _DashboardPageState extends State<DashboardPage> {
           style: TextStyle(fontSize: 24, color: Colors.black),
         ),
         const Spacer(),
+        IconButton(
+          icon: Icon(Icons.refresh, color: Colors.green),
+          onPressed: _fetchDevices,
+        ),
         _buildFilterButton(),
       ],
     );
@@ -329,36 +172,24 @@ class _DashboardPageState extends State<DashboardPage> {
 
   Widget _buildFilterButton() {
     return Material(
-      color:
-          Colors.transparent, // Transparent background for the Material widget
+      color: Colors.transparent,
       child: InkWell(
-        onTap:
-            () =>
-                _showFilterDialog(), // Extracted dialog logic into a separate method
-        borderRadius: BorderRadius.circular(
-          8.0,
-        ), // Rounded corners for ripple effect
+        onTap: () => _showFilterDialog(),
+        borderRadius: BorderRadius.circular(8.0),
         child: Ink(
           decoration: BoxDecoration(
-            color: Colors.green, // Green background
-            borderRadius: BorderRadius.circular(8.0), // Rounded corners
+            color: Colors.green,
+            borderRadius: BorderRadius.circular(8.0),
           ),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             child: Row(
               children: const [
-                Icon(
-                  Icons.filter_list,
-                  color: Colors.white,
-                  size: 20,
-                ), // Filter icon
-                SizedBox(width: 8), // Space between icon and text
+                Icon(Icons.filter_list, color: Colors.white, size: 20),
+                SizedBox(width: 8),
                 Text(
                   "Filter",
-                  style: TextStyle(
-                    color: Colors.white, // White text color
-                    fontSize: 16,
-                  ),
+                  style: TextStyle(color: Colors.white, fontSize: 16),
                 ),
               ],
             ),
@@ -387,141 +218,55 @@ class _DashboardPageState extends State<DashboardPage> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Device Name Dropdown
-                    DropdownButtonFormField<String>(
-                      decoration: const InputDecoration(
-                        labelText: "Device Name",
-                      ),
-                      value: selectedDeviceName,
-                      items:
-                          allDevices
-                              .map((device) => device["name"].toString())
-                              .toSet()
-                              .map(
-                                (name) => DropdownMenuItem(
-                                  value: name,
-                                  child: Text(name),
-                                ),
-                              )
-                              .toList(),
-                      onChanged: (value) {
+                    _buildDropdown(
+                      "Device Name",
+                      selectedDeviceName,
+                      allDevices.map((d) => d["name"].toString()).toSet(),
+                      (value) {
                         setDialogState(() => selectedDeviceName = value);
                       },
                     ),
-
-                    const SizedBox(height: 10),
-
-                    // Device ID Dropdown
-                    DropdownButtonFormField<String>(
-                      decoration: const InputDecoration(labelText: "Device ID"),
-                      value: selectedDeviceId,
-                      items:
-                          allDevices
-                              .map((device) => device["id"].toString())
-                              .toSet()
-                              .map(
-                                (id) => DropdownMenuItem(
-                                  value: id,
-                                  child: Text(id),
-                                ),
-                              )
-                              .toList(),
-                      onChanged: (value) {
+                    _buildDropdown(
+                      "Device ID",
+                      selectedDeviceId,
+                      allDevices.map((d) => d["id"].toString()).toSet(),
+                      (value) {
                         setDialogState(() => selectedDeviceId = value);
                       },
                     ),
-
-                    const SizedBox(height: 10),
-
-                    // Client Dropdown
-                    DropdownButtonFormField<String>(
-                      decoration: const InputDecoration(labelText: "Client"),
-                      value: selectedClient,
-                      items:
-                          allDevices
-                              .map((device) => device["client"].toString())
-                              .toSet()
-                              .map(
-                                (client) => DropdownMenuItem(
-                                  value: client,
-                                  child: Text(client),
-                                ),
-                              )
-                              .toList(),
-                      onChanged: (value) {
+                    _buildDropdown(
+                      "Client",
+                      selectedClient,
+                      allDevices.map((d) => d["client"].toString()).toSet(),
+                      (value) {
                         setDialogState(() => selectedClient = value);
                       },
                     ),
-
-                    const SizedBox(height: 10),
-
-                    // District Dropdown
-                    DropdownButtonFormField<String>(
-                      decoration: const InputDecoration(labelText: "District"),
-                      value: selectedDistrict,
-                      items:
-                          allDevices
-                              .map((device) => device["district"].toString())
-                              .toSet()
-                              .map(
-                                (district) => DropdownMenuItem(
-                                  value: district,
-                                  child: Text(district),
-                                ),
-                              )
-                              .toList(),
-                      onChanged: (value) {
+                    _buildDropdown(
+                      "District",
+                      selectedDistrict,
+                      allDevices.map((d) => d["district"].toString()).toSet(),
+                      (value) {
                         setDialogState(() => selectedDistrict = value);
                       },
                     ),
-
-                    const SizedBox(height: 10),
-
-                    // City Dropdown
-                    DropdownButtonFormField<String>(
-                      decoration: const InputDecoration(labelText: "City"),
-                      value: selectedCity,
-                      items:
-                          allDevices
-                              .map((device) => device["city"].toString())
-                              .toSet()
-                              .map(
-                                (city) => DropdownMenuItem(
-                                  value: city,
-                                  child: Text(city),
-                                ),
-                              )
-                              .toList(),
-                      onChanged: (value) {
+                    _buildDropdown(
+                      "City",
+                      selectedCity,
+                      allDevices.map((d) => d["city"].toString()).toSet(),
+                      (value) {
                         setDialogState(() => selectedCity = value);
                       },
                     ),
-
-                    const SizedBox(height: 10),
-
-                    // Location Dropdown
-                    DropdownButtonFormField<String>(
-                      decoration: const InputDecoration(labelText: "Location"),
-                      value: selectedLocation,
-                      items:
-                          allDevices
-                              .map((device) => device["location"].toString())
-                              .toSet()
-                              .map(
-                                (location) => DropdownMenuItem(
-                                  value: location,
-                                  child: Text(location),
-                                ),
-                              )
-                              .toList(),
-                      onChanged: (value) {
+                    _buildDropdown(
+                      "Location",
+                      selectedLocation,
+                      allDevices.map((d) => d["location"].toString()).toSet(),
+                      (value) {
                         setDialogState(() => selectedLocation = value);
                       },
                     ),
-
                     const SizedBox(height: 20),
-
-                    // Apply Button
                     ElevatedButton(
                       onPressed: () {
                         _applyFilters(
@@ -546,6 +291,29 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 
+  Widget _buildDropdown(
+    String label,
+    String? value,
+    Set<String> options,
+    void Function(String?) onChanged,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: DropdownButtonFormField<String>(
+        decoration: InputDecoration(labelText: label),
+        value: value,
+        items:
+            options
+                .map(
+                  (option) =>
+                      DropdownMenuItem(value: option, child: Text(option)),
+                )
+                .toList(),
+        onChanged: onChanged,
+      ),
+    );
+  }
+
   void _applyFilters({
     String? deviceName,
     String? deviceId,
@@ -557,27 +325,16 @@ class _DashboardPageState extends State<DashboardPage> {
     setState(() {
       filteredDevices =
           allDevices.where((device) {
-            bool matchesDeviceName =
-                deviceName == null || device["name"] == deviceName;
-            bool matchesDeviceId = deviceId == null || device["id"] == deviceId;
-            bool matchesClient = client == null || device["client"] == client;
-            bool matchesDistrict =
-                district == null || device["district"] == district;
-            bool matchesCity = city == null || device["city"] == city;
-            bool matchesLocation =
-                location == null || device["location"] == location;
-
-            return matchesDeviceName &&
-                matchesDeviceId &&
-                matchesClient &&
-                matchesDistrict &&
-                matchesCity &&
-                matchesLocation;
+            return (deviceName == null || device["name"] == deviceName) &&
+                (deviceId == null || device["id"] == deviceId) &&
+                (client == null || device["client"] == client) &&
+                (district == null || device["district"] == district) &&
+                (city == null || device["city"] == city) &&
+                (location == null || device["location"] == location);
           }).toList();
     });
   }
 
-  // Device Summary Widget
   Widget _buildDeviceSummary() {
     return Container(
       padding: const EdgeInsets.all(10),
@@ -597,7 +354,6 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 
-  // Device Grid Widget
   Widget _buildDeviceGrid(BuildContext context) {
     return StaggeredGrid.count(
       crossAxisCount: 1,
@@ -607,7 +363,6 @@ class _DashboardPageState extends State<DashboardPage> {
             crossAxisCellCount: 1,
             child: GestureDetector(
               onTap: () {
-                // Navigate to DeviceDetailPage and pass the device ID
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -617,15 +372,15 @@ class _DashboardPageState extends State<DashboardPage> {
                 );
               },
               child: DeviceCard(
-                name: device["name"],
-                id: device["id"],
-                client: device["client"],
-                district: device["district"],
-                location: device["location"],
-                status: device["status"],
-                changeStatus: device["changeStatus"],
-                emergency: device["emergency"],
-                city: device["city"],
+                name: device['name'] ?? '',
+                id: device['id'] ?? '',
+                client: device['client'] ?? '',
+                district: device['district'] ?? '',
+                city: device['city'] ?? '',
+                location: device['location'] ?? '',
+                status: _getStatusFromString(device['status']),
+                changeStatus: device['changeStatus'] ?? false,
+                emergency: device['emergency'] ?? false,
               ),
             ),
           ),

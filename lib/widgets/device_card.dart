@@ -64,10 +64,7 @@ class DeviceCardState extends State<DeviceCard> {
             child: Center(
               child: Text(
                 widget.name,
-                style: const TextStyle(
-                  color: Colors.black,
-                  fontSize: 16,
-                ),
+                style: const TextStyle(color: Colors.black, fontSize: 16),
               ),
             ),
           ),
@@ -120,10 +117,7 @@ class DeviceCardState extends State<DeviceCard> {
         children: [
           Text(
             label,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 14,
-            ),
+            style: const TextStyle(color: Colors.white, fontSize: 14),
           ),
           Icon(
             emergency ? Icons.warning : Icons.check_circle,
@@ -147,10 +141,7 @@ class DeviceCardState extends State<DeviceCard> {
           Flexible(
             child: Text(
               label,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 14,
-              ),
+              style: const TextStyle(color: Colors.white, fontSize: 14),
               softWrap: true,
               overflow: TextOverflow.visible,
             ),
@@ -178,10 +169,7 @@ class DeviceCardState extends State<DeviceCard> {
         children: [
           Text(
             label,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 14,
-            ),
+            style: const TextStyle(color: Colors.white, fontSize: 14),
           ),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -216,10 +204,7 @@ class DeviceCardState extends State<DeviceCard> {
         children: [
           Text(
             label,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 14,
-            ),
+            style: const TextStyle(color: Colors.white, fontSize: 14),
           ),
           Flexible(
             child: Text(

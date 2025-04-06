@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:orbitsproject/pages/login.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'change_password.dart';
 import 'add_device.dart';
 import 'update_device.dart';
@@ -102,9 +104,17 @@ class AppDrawer extends StatelessWidget {
               child: const Text("Cancel"),
             ),
             TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-                // Implement logout functionality here
+              onPressed: () async {
+                // Clear login session
+                final prefs = await SharedPreferences.getInstance();
+                await prefs.clear();
+
+                // Navigate to login screen and remove all previous routes
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (context) => LoginPage()),
+                  (route) => false, // Remove all previous routes
+                );
               },
               child: const Text("Logout"),
             ),
