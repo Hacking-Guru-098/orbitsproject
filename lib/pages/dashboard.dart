@@ -54,8 +54,8 @@ class _DashboardPageState extends State<DashboardPage> {
 
       if (getNameResponse.statusCode == 200) {
         final getNameData = jsonDecode(getNameResponse.body);
-
         final flag = getNameData["flag"];
+
         Map<String, String> requestBodyForDevices = {
           "cs": "",
           "ds": "",
@@ -92,7 +92,6 @@ class _DashboardPageState extends State<DashboardPage> {
                   "city": device["city"],
                   "location": device["location"],
                   "status": device["status"],
-                  "changeStatus": device["changeStatus"],
                   "emergency": device["emergency"],
                 };
               }).toList();
@@ -222,49 +221,38 @@ class _DashboardPageState extends State<DashboardPage> {
                       "Device Name",
                       selectedDeviceName,
                       allDevices.map((d) => d["name"].toString()).toSet(),
-                      (value) {
-                        setDialogState(() => selectedDeviceName = value);
-                      },
+                      (value) =>
+                          setDialogState(() => selectedDeviceName = value),
                     ),
                     _buildDropdown(
                       "Device ID",
                       selectedDeviceId,
                       allDevices.map((d) => d["id"].toString()).toSet(),
-                      (value) {
-                        setDialogState(() => selectedDeviceId = value);
-                      },
+                      (value) => setDialogState(() => selectedDeviceId = value),
                     ),
                     _buildDropdown(
                       "Client",
                       selectedClient,
                       allDevices.map((d) => d["client"].toString()).toSet(),
-                      (value) {
-                        setDialogState(() => selectedClient = value);
-                      },
+                      (value) => setDialogState(() => selectedClient = value),
                     ),
                     _buildDropdown(
                       "District",
                       selectedDistrict,
                       allDevices.map((d) => d["district"].toString()).toSet(),
-                      (value) {
-                        setDialogState(() => selectedDistrict = value);
-                      },
+                      (value) => setDialogState(() => selectedDistrict = value),
                     ),
                     _buildDropdown(
                       "City",
                       selectedCity,
                       allDevices.map((d) => d["city"].toString()).toSet(),
-                      (value) {
-                        setDialogState(() => selectedCity = value);
-                      },
+                      (value) => setDialogState(() => selectedCity = value),
                     ),
                     _buildDropdown(
                       "Location",
                       selectedLocation,
                       allDevices.map((d) => d["location"].toString()).toSet(),
-                      (value) {
-                        setDialogState(() => selectedLocation = value);
-                      },
+                      (value) => setDialogState(() => selectedLocation = value),
                     ),
                     const SizedBox(height: 20),
                     ElevatedButton(
@@ -379,7 +367,6 @@ class _DashboardPageState extends State<DashboardPage> {
                 city: device['city'] ?? '',
                 location: device['location'] ?? '',
                 status: _getStatusFromString(device['status']),
-                changeStatus: device['changeStatus'] ?? false,
                 emergency: device['emergency'] ?? false,
               ),
             ),

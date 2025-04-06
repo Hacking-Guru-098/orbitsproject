@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 enum DeviceStatus { inActive, active, danger }
 
-class DeviceCard extends StatefulWidget {
+class DeviceCard extends StatelessWidget {
   const DeviceCard({
     super.key,
     required this.name,
@@ -12,7 +12,6 @@ class DeviceCard extends StatefulWidget {
     required this.city,
     required this.location,
     required this.status,
-    required this.changeStatus,
     required this.emergency,
   });
 
@@ -23,21 +22,7 @@ class DeviceCard extends StatefulWidget {
   final String city;
   final String location;
   final DeviceStatus status;
-  final bool changeStatus;
   final bool emergency;
-
-  @override
-  DeviceCardState createState() => DeviceCardState();
-}
-
-class DeviceCardState extends State<DeviceCard> {
-  bool _changeStatus = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _changeStatus = widget.changeStatus;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -50,31 +35,31 @@ class DeviceCardState extends State<DeviceCard> {
           Container(
             height: 30,
             width: double.infinity,
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [Color(0xFF85F648), Color(0xFFCFE9C1)],
               ),
-              borderRadius: const BorderRadius.only(
+              borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(10),
                 topRight: Radius.circular(10),
               ),
             ),
             child: Center(
               child: Text(
-                widget.name,
+                name,
                 style: const TextStyle(color: Colors.black, fontSize: 16),
               ),
             ),
           ),
           Container(
-            decoration: BoxDecoration(
-              borderRadius: const BorderRadius.only(
+            decoration: const BoxDecoration(
+              borderRadius: BorderRadius.only(
                 bottomLeft: Radius.circular(10),
                 bottomRight: Radius.circular(10),
               ),
-              gradient: const LinearGradient(
+              gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [Color(0xFFB6B8B5), Color(0xFF373B35)],
@@ -85,21 +70,14 @@ class DeviceCardState extends State<DeviceCard> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildRow("Device Name:", widget.name),
-                  _buildRow("ID:", widget.id),
-                  _buildRow("Client:", widget.client),
-                  _buildRow("District:", widget.district),
-                  _buildRow("City:", widget.city),
-                  _buildRow("Location:", widget.location),
-                  _buildStatusRow("Status:", widget.status),
-                  _buildChangeStatusRow("Change Status:", _changeStatus, (
-                    value,
-                  ) {
-                    setState(() {
-                      _changeStatus = value;
-                    });
-                  }),
-                  _buildEmergencyRow("Emergency:", widget.emergency),
+                  _buildRow("Device Name:", name),
+                  _buildRow("ID:", id),
+                  _buildRow("Client:", client),
+                  _buildRow("District:", district),
+                  _buildRow("City:", city),
+                  _buildRow("Location:", location),
+                  _buildStatusRow("Status:", status),
+                  _buildEmergencyRow("Emergency:", emergency),
                 ],
               ),
             ),
@@ -109,7 +87,7 @@ class DeviceCardState extends State<DeviceCard> {
     );
   }
 
-  Widget _buildEmergencyRow(String label, bool emergency) {
+  Widget _buildRow(String label, String value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
@@ -119,41 +97,11 @@ class DeviceCardState extends State<DeviceCard> {
             label,
             style: const TextStyle(color: Colors.white, fontSize: 14),
           ),
-          Icon(
-            emergency ? Icons.warning : Icons.check_circle,
-            color: emergency ? Colors.red : Colors.green,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildChangeStatusRow(
-    String label,
-    bool changeStatus,
-    ValueChanged<bool> onChanged,
-  ) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
           Flexible(
             child: Text(
-              label,
+              value,
               style: const TextStyle(color: Colors.white, fontSize: 14),
-              softWrap: true,
-              overflow: TextOverflow.visible,
-            ),
-          ),
-          Transform.scale(
-            scale: 0.8,
-            child: Switch(
-              value: changeStatus,
-              onChanged: onChanged,
-              activeColor: Colors.green,
-              inactiveThumbColor: Colors.grey,
-              inactiveTrackColor: Colors.white24,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         ],
@@ -196,7 +144,7 @@ class DeviceCardState extends State<DeviceCard> {
     );
   }
 
-  Widget _buildRow(String label, String value) {
+  Widget _buildEmergencyRow(String label, bool emergency) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
@@ -206,12 +154,9 @@ class DeviceCardState extends State<DeviceCard> {
             label,
             style: const TextStyle(color: Colors.white, fontSize: 14),
           ),
-          Flexible(
-            child: Text(
-              value,
-              style: const TextStyle(color: Colors.white, fontSize: 14),
-              overflow: TextOverflow.ellipsis,
-            ),
+          Icon(
+            emergency ? Icons.warning : Icons.check_circle,
+            color: emergency ? Colors.red : Colors.green,
           ),
         ],
       ),

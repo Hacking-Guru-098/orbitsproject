@@ -1,94 +1,211 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
-class DeviceDetailPage extends StatelessWidget {
+class DeviceDetailPage extends StatefulWidget {
   final String deviceId;
 
   const DeviceDetailPage({super.key, required this.deviceId});
 
   @override
+  State<DeviceDetailPage> createState() => _DeviceDetailPageState();
+}
+
+class _DeviceDetailPageState extends State<DeviceDetailPage> {
+  Map<String, dynamic>? deviceData;
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchDeviceData();
+  }
+
+  Future<void> fetchDeviceData() async {
+    setState(() => isLoading = true);
+    final url = Uri.parse(
+      'https://mitzvah-software-for-smart-air-curtain.onrender.com/find',
+    );
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'id_view': widget.deviceId}),
+      );
+
+      if (response.statusCode == 200) {
+        final List data = jsonDecode(response.body);
+        setState(() {
+          deviceData = data.isNotEmpty ? data[0] : null;
+          isLoading = false;
+        });
+      } else {
+        throw Exception('Failed to load device data');
+      }
+    } catch (e) {
+      print('Error fetching device data: $e');
+      setState(() => isLoading = false);
+    }
+  }
+
+  Future<void> changeStatus() async {
+    if (deviceData == null) return;
+
+    final currentStatus = deviceData!['Status'];
+    final newStatus = currentStatus == 1 ? 0 : 1;
+
+    final url = Uri.parse(
+      'https://mitzvah-software-for-smart-air-curtain.onrender.com/change',
+    );
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'st': newStatus, 'id': widget.deviceId}),
+      );
+
+      if (response.statusCode == 200 && response.body == 'Done') {
+        await fetchDeviceData(); // Refresh data after status change
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Status changed successfully!')));
+      } else {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Failed to change status')));
+      }
+    } catch (e) {
+      print('Error changing status: $e');
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error: $e')));
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final indoorTemp = deviceData?['Indoor_Temp']?.toStringAsFixed(1) ?? '--';
+    final outdoorTemp = deviceData?['Outdoor_Temp']?.toStringAsFixed(1) ?? '--';
+    final power = deviceData?['Power']?.toString() ?? '0';
+
+    final isOnline = deviceData != null;
+    final statusRaw = deviceData?['Status'];
+    final status = statusRaw == 1 ? 'ON' : 'OFF';
+    final statusColor = statusRaw == 1 ? Colors.green : Colors.red;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Device Details'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pop(context);
-          },
+          onPressed: () => Navigator.pop(context),
         ),
       ),
       backgroundColor: Colors.white,
-      body: Center(
-        child: Container(
-          margin: const EdgeInsets.all(20),
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.lightBlue.shade100,
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text(
-                "Device ID : $deviceId",
-                style: const TextStyle(fontSize: 18, color: Colors.black),
+      body:
+          isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : Center(
+                child: Container(
+                  margin: const EdgeInsets.all(20),
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.lightBlue.shade100,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        "Device ID : ${widget.deviceId}",
+                        style: const TextStyle(
+                          fontSize: 18,
+                          color: Colors.black,
+                        ),
+                      ),
+                      const SizedBox(height: 5),
+                      Text(
+                        isOnline ? "\u{1F7E2} Online" : "\u{1F534} Offline",
+                        style: TextStyle(
+                          color: isOnline ? Colors.green : Colors.red,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Wrap(
+                        alignment: WrapAlignment.center,
+                        spacing: 15,
+                        runSpacing: 15,
+                        children: [
+                          infoCircle(
+                            "$indoorTemp °C",
+                            "Indoor Temp",
+                            Icons.thermostat,
+                          ),
+                          infoCircle(
+                            status,
+                            "Status",
+                            Icons.power_settings_new,
+                            statusColor,
+                          ),
+                          infoCircle(
+                            "$outdoorTemp °C",
+                            "Outdoor Temp",
+                            Icons.settings,
+                          ),
+                          infoCircle("0", "Head Count", Icons.door_front_door),
+                          infoCircle("0", "RPM", Icons.speed),
+                          infoCircle(power, "Power", Icons.electrical_services),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+                      Wrap(
+                        alignment: WrapAlignment.center,
+                        spacing: 10,
+                        runSpacing: 10,
+                        children: [
+                          actionButton(
+                            "Change Status",
+                            Colors.orange,
+                            changeStatus,
+                          ),
+                          actionButton(
+                            "Refresh",
+                            Colors.green,
+                            fetchDeviceData,
+                          ),
+                          actionButton("See Records", Colors.red),
+                        ],
+                      ),
+                      const SizedBox(height: 15),
+                      Text(
+                        "Last Updated Data on : ${deviceData != null ? DateTime.fromMillisecondsSinceEpoch(deviceData!['current_dt']).toString() : "N/A"}",
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
-              const SizedBox(height: 5),
-              const Text(
-                "\u{1F534} Offline",
-                style: TextStyle(color: Colors.red),
-              ),
-              const SizedBox(height: 10),
-
-              // First row with three infoCircles
-              Wrap(
-                alignment: WrapAlignment.center,
-                spacing: 15,
-                runSpacing: 15,
-                children: [
-                  infoCircle("NaN °C", "Indoor Temp", Icons.thermostat),
-                  infoCircle("ON", "Status", Icons.power_settings_new),
-                  infoCircle("NaN °C", "Outdoor Temp", Icons.settings),
-                  infoCircle("0", "Head Count", Icons.door_front_door),
-                  infoCircle("0", "RPM", Icons.speed),
-                  infoCircle("0", "Power", Icons.electrical_services),
-                ],
-              ),
-
-              const SizedBox(height: 20),
-
-              // Buttons section (wrap ensures responsive layout)
-              Wrap(
-                alignment: WrapAlignment.center,
-                spacing: 10,
-                runSpacing: 10,
-                children: [
-                  actionButton("Change Status", Colors.orange),
-                  actionButton("Refresh", Colors.green),
-                  actionButton("See Records", Colors.red),
-                ],
-              ),
-
-              const SizedBox(height: 15),
-              const Text(
-                "Last Updated Data on : 2025-01-09 10:58:46",
-                style: TextStyle(fontSize: 14, color: Colors.black),
-              ),
-            ],
-          ),
-        ),
-      ),
     );
   }
 
-  Widget infoCircle(String value, String label, IconData icon) {
+  Widget infoCircle(
+    String value,
+    String label,
+    IconData icon, [
+    Color? circleColor,
+  ]) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         CircleAvatar(
           radius: 40,
-          backgroundColor: Colors.blue,
+          backgroundColor: circleColor ?? Colors.blue,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -107,14 +224,14 @@ class DeviceDetailPage extends StatelessWidget {
     );
   }
 
-  Widget actionButton(String text, Color color) {
+  Widget actionButton(String text, Color color, [VoidCallback? onPressed]) {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
         backgroundColor: color,
         foregroundColor: Colors.white,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       ),
-      onPressed: () {},
+      onPressed: onPressed ?? () {},
       child: Text(text),
     );
   }
