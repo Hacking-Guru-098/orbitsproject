@@ -89,6 +89,8 @@ class _DeviceDetailPageState extends State<DeviceDetailPage> {
     final indoorTemp = deviceData?['Indoor_Temp']?.toStringAsFixed(1) ?? '--';
     final outdoorTemp = deviceData?['Outdoor_Temp']?.toStringAsFixed(1) ?? '--';
     final power = deviceData?['Power']?.toString() ?? '0';
+    final headCount = deviceData?['Head_Count']?.toString() ?? '0';
+    final rpm = deviceData?['RPM']?.toString() ?? '0';
 
     final isOnline = deviceData != null;
     final statusRaw = deviceData?['Status'];
@@ -155,8 +157,12 @@ class _DeviceDetailPageState extends State<DeviceDetailPage> {
                             "Outdoor Temp",
                             Icons.settings,
                           ),
-                          infoCircle("0", "Head Count", Icons.door_front_door),
-                          infoCircle("0", "RPM", Icons.speed),
+                          infoCircle(
+                            headCount,
+                            "Head Count",
+                            Icons.door_front_door,
+                          ),
+                          infoCircle(rpm, "RPM", Icons.speed),
                           infoCircle(power, "Power", Icons.electrical_services),
                         ],
                       ),
