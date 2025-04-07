@@ -1,87 +1,179 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 void showAddUserDialog(BuildContext context) {
-  TextEditingController emailController = TextEditingController();
+  TextEditingController usernameController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
-  String userType = 'Client'; // Default selection
+  TextEditingController nameController = TextEditingController();
+  TextEditingController districtController = TextEditingController();
+  TextEditingController cityController = TextEditingController();
+  TextEditingController locationController = TextEditingController();
+
+  String userType = 'Client'; // Default
 
   showDialog(
     context: context,
     builder: (context) {
-      return AlertDialog(
-        title: const Text("Add a New User"),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: emailController,
-                decoration: const InputDecoration(labelText: "Enter Email"),
-                keyboardType: TextInputType.emailAddress,
+      return StatefulBuilder(
+        builder: (context, setState) {
+          return AlertDialog(
+            title: const Text("Add a New User"),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: usernameController,
+                    decoration: const InputDecoration(
+                      labelText: "Enter Username",
+                    ),
+                  ),
+                  TextField(
+                    controller: passwordController,
+                    decoration: const InputDecoration(
+                      labelText: "Enter Password",
+                    ),
+                    obscureText: true,
+                  ),
+                  DropdownButtonFormField<String>(
+                    value: userType,
+                    decoration: const InputDecoration(labelText: "Select Role"),
+                    items:
+                        ['Admin', 'Client'].map((String role) {
+                          return DropdownMenuItem<String>(
+                            value: role,
+                            child: Text(role),
+                          );
+                        }).toList(),
+                    onChanged: (String? newValue) {
+                      if (newValue != null) {
+                        setState(() {
+                          userType = newValue;
+                        });
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 10),
+                  if (userType == "Client") ...[
+                    TextField(
+                      controller: nameController,
+                      decoration: const InputDecoration(
+                        labelText: "Client Name",
+                      ),
+                    ),
+                    TextField(
+                      controller: districtController,
+                      decoration: const InputDecoration(labelText: "District"),
+                    ),
+                    TextField(
+                      controller: cityController,
+                      decoration: const InputDecoration(labelText: "City"),
+                    ),
+                    TextField(
+                      controller: locationController,
+                      decoration: const InputDecoration(labelText: "Location"),
+                    ),
+                  ],
+                ],
               ),
-              TextField(
-                controller: passwordController,
-                decoration: const InputDecoration(labelText: "Enter Password"),
-                obscureText: true,
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text("Cancel"),
               ),
-              DropdownButtonFormField<String>(
-                value: userType,
-                decoration: const InputDecoration(labelText: "Select Role"),
-                items:
-                    ['Admin', 'Client'].map((String role) {
-                      return DropdownMenuItem<String>(
-                        value: role,
-                        child: Text(role),
-                      );
-                    }).toList(),
-                onChanged: (String? newValue) {
-                  if (newValue != null) {
-                    userType = newValue;
+              TextButton(
+                onPressed: () async {
+                  String username = usernameController.text.trim();
+                  String password = passwordController.text.trim();
+                  String name = nameController.text.trim();
+                  String district = districtController.text.trim();
+                  String city = cityController.text.trim();
+                  String location = locationController.text.trim();
+
+                  if (username.isEmpty || password.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text("Username and password are required!"),
+                      ),
+                    );
+                    return;
+                  }
+
+                  if (userType == "Client" &&
+                      (name.isEmpty ||
+                          district.isEmpty ||
+                          city.isEmpty ||
+                          location.isEmpty)) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text("Please fill all client fields!"),
+                      ),
+                    );
+                    return;
+                  }
+
+                  final body =
+                      userType == "Admin"
+                          ? {
+                            "username": username,
+                            "password": password,
+                            "login": "0",
+                          }
+                          : {
+                            "username": username,
+                            "password": password,
+                            "login": "Client",
+                            "name": name,
+                            "district": district,
+                            "city": city,
+                            "location": location,
+                          };
+
+                  final response = await http.post(
+                    Uri.parse(
+                      "https://mitzvah-software-for-smart-air-curtain.onrender.com/add2",
+                    ),
+                    headers: {"Content-Type": "application/json"},
+                    body: jsonEncode(body),
+                  );
+
+                  if (response.statusCode == 200) {
+                    Navigator.pop(context); // Close the dialog
+
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                          title: const Text("Success"),
+                          content: Text(
+                            "User added successfully as $userType!",
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: const Text("Done"),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          "Failed to add user. Server responded with: ${response.body}",
+                        ),
+                      ),
+                    );
                   }
                 },
+                child: const Text("Add"),
               ),
             ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("Cancel"),
-          ),
-          TextButton(
-            onPressed: () {
-              String email = emailController.text.trim();
-              String password = passwordController.text.trim();
-
-              if (email.isEmpty || password.isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("All fields are required!")),
-                );
-                return;
-              }
-
-              Navigator.pop(context); // Close the Add User dialog
-
-              // Show success confirmation dialog
-              showDialog(
-                context: context,
-                builder: (context) {
-                  return AlertDialog(
-                    title: const Text("Success"),
-                    content: Text("User added successfully as $userType!"),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(context),
-                        child: const Text("OK"),
-                      ),
-                    ],
-                  );
-                },
-              );
-            },
-            child: const Text("Add"),
-          ),
-        ],
+          );
+        },
       );
     },
   );

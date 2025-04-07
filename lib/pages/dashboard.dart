@@ -18,6 +18,7 @@ class DashboardPage extends StatefulWidget {
 class _DashboardPageState extends State<DashboardPage> {
   String username = '';
   String password = '';
+  String userRole = ''; // admin or client
   bool isLoading = true;
 
   List<Map<String, dynamic>> allDevices = [];
@@ -55,6 +56,7 @@ class _DashboardPageState extends State<DashboardPage> {
       if (getNameResponse.statusCode == 200) {
         final getNameData = jsonDecode(getNameResponse.body);
         final flag = getNameData["flag"];
+        userRole = flag;
 
         Map<String, String> requestBodyForDevices = {
           "cs": "",
@@ -130,12 +132,12 @@ class _DashboardPageState extends State<DashboardPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const CustomAppBar(),
-      drawer: AppDrawer(username: username),
+      drawer: AppDrawer(username: username, userRole: userRole),
       body: Padding(
         padding: const EdgeInsets.only(left: 10, right: 10, top: 10),
         child:
             isLoading
-                ? Center(child: CircularProgressIndicator())
+                ? const Center(child: CircularProgressIndicator())
                 : SingleChildScrollView(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -161,7 +163,7 @@ class _DashboardPageState extends State<DashboardPage> {
         ),
         const Spacer(),
         IconButton(
-          icon: Icon(Icons.refresh, color: Colors.green),
+          icon: const Icon(Icons.refresh, color: Colors.green),
           onPressed: _fetchDevices,
         ),
         _buildFilterButton(),
@@ -173,17 +175,17 @@ class _DashboardPageState extends State<DashboardPage> {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        onTap: () => _showFilterDialog(),
+        onTap: _showFilterDialog,
         borderRadius: BorderRadius.circular(8.0),
         child: Ink(
           decoration: BoxDecoration(
             color: Colors.green,
             borderRadius: BorderRadius.circular(8.0),
           ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          child: const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             child: Row(
-              children: const [
+              children: [
                 Icon(Icons.filter_list, color: Colors.white, size: 20),
                 SizedBox(width: 8),
                 Text(
@@ -291,12 +293,9 @@ class _DashboardPageState extends State<DashboardPage> {
         decoration: InputDecoration(labelText: label),
         value: value,
         items:
-            options
-                .map(
-                  (option) =>
-                      DropdownMenuItem(value: option, child: Text(option)),
-                )
-                .toList(),
+            options.map((option) {
+              return DropdownMenuItem(value: option, child: Text(option));
+            }).toList(),
         onChanged: onChanged,
       ),
     );

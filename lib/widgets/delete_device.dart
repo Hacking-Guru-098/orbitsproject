@@ -1,8 +1,9 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 void showDeleteDeviceDialog(BuildContext context) {
   TextEditingController macController = TextEditingController();
-  bool isDeviceFound = false;
 
   showDialog(
     context: context,
@@ -22,8 +23,7 @@ void showDeleteDeviceDialog(BuildContext context) {
                 ),
                 const SizedBox(height: 10),
                 ElevatedButton(
-                  onPressed: () {
-                    // Simulate searching for the MAC address
+                  onPressed: () async {
                     String macAddress = macController.text.trim();
 
                     if (macAddress.isEmpty) {
@@ -35,54 +35,60 @@ void showDeleteDeviceDialog(BuildContext context) {
                       return;
                     }
 
-                    // Simulating device search
-                    bool found = _searchDevice(
-                      macAddress,
-                    ); // Replace with real API call
+                    final url = Uri.parse(
+                      "https://mitzvah-software-for-smart-air-curtain.onrender.com/delete-device",
+                    );
 
-                    setState(() {
-                      isDeviceFound = found;
-                    });
+                    try {
+                      final response = await http.post(
+                        url,
+                        headers: {"Content-Type": "application/json"},
+                        body: jsonEncode({"id": macAddress}),
+                      );
 
-                    if (!found) {
+                      if (response.statusCode == 200 &&
+                          response.body.toLowerCase().contains("ok")) {
+                        Navigator.pop(context); // Close the first dialog
+
+                        // Show success dialog
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return AlertDialog(
+                              title: const Text("Device Deleted"),
+                              content: Text(
+                                "The device with MAC ID \"$macAddress\" has been successfully deleted.",
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context),
+                                  child: const Text("OK"),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                              "Device not found or deletion failed.",
+                            ),
+                          ),
+                        );
+                      }
+                    } catch (e) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("Device not found!")),
+                        SnackBar(content: Text("Error: ${e.toString()}")),
                       );
                     }
                   },
-                  child: const Text("Search"),
-                ),
-                if (isDeviceFound) ...[
-                  const SizedBox(height: 10),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context); // Close the search dialog
-
-                      // Show confirmation dialog
-                      showDialog(
-                        context: context,
-                        builder: (context) {
-                          return AlertDialog(
-                            title: const Text("Device Deleted"),
-                            content: Text(
-                              "The device with MAC ${macController.text} has been deleted.",
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.pop(context),
-                                child: const Text("OK"),
-                              ),
-                            ],
-                          );
-                        },
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red,
-                    ),
-                    child: const Text("Delete"),
+                  child: const Text("Delete Device"),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                    foregroundColor: Colors.white,
                   ),
-                ],
+                ),
               ],
             ),
             actions: [
@@ -96,10 +102,4 @@ void showDeleteDeviceDialog(BuildContext context) {
       );
     },
   );
-}
-
-// Dummy function to simulate searching for a device (Replace with actual backend call)
-bool _searchDevice(String macAddress) {
-  List<String> mockDevices = ["AA:BB:CC:DD:EE:FF", "11:22:33:44:55:66"];
-  return mockDevices.contains(macAddress);
 }
