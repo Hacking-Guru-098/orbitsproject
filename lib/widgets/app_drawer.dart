@@ -8,6 +8,8 @@ import 'delete_device.dart';
 import 'add_user.dart';
 import 'remove_client.dart';
 import 'contact_us.dart';
+import 'package:orbitsproject/pages/ErrorLogViewer.dart'; // ✅ Same import style as others
+import 'package:orbitsproject/utils/error_logger.dart';
 
 class AppDrawer extends StatelessWidget {
   final String username;
@@ -39,39 +41,122 @@ class AppDrawer extends StatelessWidget {
           _createDrawerItem(
             icon: Icons.lock,
             text: 'Change Password',
-            onTap: () => showChangePasswordDialog(context),
+            onTap: () {
+              try {
+                showChangePasswordDialog(context);
+              } catch (e, stack) {
+                ErrorLogger.logError(
+                  "Failed to open Change Password dialog",
+                  e.toString(),
+                  stack.toString(),
+                );
+              }
+            },
           ),
           if (userRole == "admin") ...[
             _createDrawerItem(
               icon: Icons.add,
               text: 'Add a Device',
-              onTap: () => showAddDeviceDialog(context),
+              onTap: () {
+                try {
+                  showAddDeviceDialog(context);
+                } catch (e, stack) {
+                  ErrorLogger.logError(
+                    "Failed to open Add Device dialog",
+                    e.toString(),
+                    stack.toString(),
+                  );
+                }
+              },
             ),
             _createDrawerItem(
               icon: Icons.edit,
               text: 'Update a Device',
-              onTap: () => showUpdateDeviceDialog(context),
+              onTap: () {
+                try {
+                  showUpdateDeviceDialog(context);
+                } catch (e, stack) {
+                  ErrorLogger.logError(
+                    "Failed to open Update Device dialog",
+                    e.toString(),
+                    stack.toString(),
+                  );
+                }
+              },
             ),
             _createDrawerItem(
               icon: Icons.delete,
               text: 'Delete a Device',
-              onTap: () => showDeleteDeviceDialog(context),
+              onTap: () {
+                try {
+                  showDeleteDeviceDialog(context);
+                } catch (e, stack) {
+                  ErrorLogger.logError(
+                    "Failed to open Delete Device dialog",
+                    e.toString(),
+                    stack.toString(),
+                  );
+                }
+              },
             ),
             _createDrawerItem(
               icon: Icons.person_add,
               text: 'Add a New User',
-              onTap: () => showAddUserDialog(context),
+              onTap: () {
+                try {
+                  showAddUserDialog(context);
+                } catch (e, stack) {
+                  ErrorLogger.logError(
+                    "Failed to open Add User dialog",
+                    e.toString(),
+                    stack.toString(),
+                  );
+                }
+              },
             ),
             _createDrawerItem(
               icon: Icons.person_remove,
               text: 'Remove a Client',
-              onTap: () => showRemoveClientDialog(context),
+              onTap: () {
+                try {
+                  showRemoveClientDialog(context);
+                } catch (e, stack) {
+                  ErrorLogger.logError(
+                    "Failed to open Remove Client dialog",
+                    e.toString(),
+                    stack.toString(),
+                  );
+                }
+              },
             ),
           ],
+
+          // ✅ Log Viewer for all users
+          _createDrawerItem(
+            icon: Icons.bug_report,
+            text: 'View Logs',
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ErrorLogViewer()),
+              );
+            },
+          ),
+
           _createDrawerItem(
             icon: Icons.contact_mail,
             text: 'Contact Us',
-            onTap: () => showContactUsDialog(context),
+            onTap: () {
+              try {
+                showContactUsDialog(context);
+              } catch (e, stack) {
+                ErrorLogger.logError(
+                  "Failed to open Contact Us dialog",
+                  e.toString(),
+                  stack.toString(),
+                );
+              }
+            },
           ),
           _createDrawerItem(
             icon: Icons.exit_to_app,
@@ -109,13 +194,21 @@ class AppDrawer extends StatelessWidget {
             ),
             TextButton(
               onPressed: () async {
-                final prefs = await SharedPreferences.getInstance();
-                await prefs.clear();
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(builder: (context) => LoginPage()),
-                  (route) => false,
-                );
+                try {
+                  final prefs = await SharedPreferences.getInstance();
+                  await prefs.clear();
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (context) => const LoginPage()),
+                    (route) => false,
+                  );
+                } catch (e, stack) {
+                  ErrorLogger.logError(
+                    "Logout failed",
+                    e.toString(),
+                    stack.toString(),
+                  );
+                }
               },
               child: const Text("Logout"),
             ),

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:orbitsproject/utils/error_logger.dart'; // 👈 Import your logger
 
 void showRemoveClientDialog(BuildContext context) {
   TextEditingController usernameController = TextEditingController();
@@ -51,7 +52,6 @@ void showRemoveClientDialog(BuildContext context) {
                         response.body.toLowerCase().contains("ok")) {
                       Navigator.pop(context); // Close the initial dialog
 
-                      // Show confirmation dialog
                       showDialog(
                         context: context,
                         builder: (context) {
@@ -70,13 +70,25 @@ void showRemoveClientDialog(BuildContext context) {
                         },
                       );
                     } else {
+                      await ErrorLogger.logError(
+                        "Failed to remove client",
+                        "Username: $username",
+                        "Response: ${response.body}",
+                      );
+
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                           content: Text("Failed to remove the client."),
                         ),
                       );
                     }
-                  } catch (e) {
+                  } catch (e, stack) {
+                    await ErrorLogger.logError(
+                      "Exception during client removal",
+                      e.toString(),
+                      stack.toString(),
+                    );
+
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text("Error: ${e.toString()}")),
                     );

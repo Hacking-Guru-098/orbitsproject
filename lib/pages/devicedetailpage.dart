@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import '../utils/error_logger.dart'; // Make sure this path is correct
 
 class DeviceDetailPage extends StatefulWidget {
   final String deviceId;
@@ -41,10 +42,21 @@ class _DeviceDetailPageState extends State<DeviceDetailPage> {
           isLoading = false;
         });
       } else {
-        throw Exception('Failed to load device data');
+        final errorMessage =
+            'Failed to load device data. Status code: ${response.statusCode}';
+        await ErrorLogger.logError(
+          'DeviceDetailPage -> fetchDeviceData',
+          errorMessage,
+          '',
+        );
+        setState(() => isLoading = false);
       }
-    } catch (e) {
-      print('Error fetching device data: $e');
+    } catch (e, stackTrace) {
+      await ErrorLogger.logError(
+        'DeviceDetailPage -> fetchDeviceData',
+        e.toString(),
+        stackTrace.toString(),
+      );
       setState(() => isLoading = false);
     }
   }
@@ -72,12 +84,23 @@ class _DeviceDetailPageState extends State<DeviceDetailPage> {
           context,
         ).showSnackBar(SnackBar(content: Text('Status changed successfully!')));
       } else {
+        final errorMessage =
+            'Unexpected response: statusCode=${response.statusCode}, body=${response.body}';
+        await ErrorLogger.logError(
+          'DeviceDetailPage -> changeStatus',
+          errorMessage,
+          '',
+        );
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text('Failed to change status')));
       }
-    } catch (e) {
-      print('Error changing status: $e');
+    } catch (e, stackTrace) {
+      await ErrorLogger.logError(
+        'DeviceDetailPage -> changeStatus',
+        e.toString(),
+        stackTrace.toString(),
+      );
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text('Error: $e')));

@@ -7,6 +7,7 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:orbitsproject/utils/error_logger.dart'; // ✅ Error Logger
 
 class DashboardPage extends StatefulWidget {
   DashboardPage({super.key});
@@ -109,11 +110,18 @@ class _DashboardPageState extends State<DashboardPage> {
       } else {
         throw Exception("Initial authentication failed");
       }
-    } catch (e) {
+    } catch (e, stack) {
+      await ErrorLogger.logError(
+        "DashboardPage _fetchDevices Error: $e",
+        stack.toString(),
+      );
       setState(() => isLoading = false);
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Error: ${e.toString()}')));
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: ${e.toString()}')));
+      }
     }
   }
 
@@ -293,9 +301,12 @@ class _DashboardPageState extends State<DashboardPage> {
         decoration: InputDecoration(labelText: label),
         value: value,
         items:
-            options.map((option) {
-              return DropdownMenuItem(value: option, child: Text(option));
-            }).toList(),
+            options
+                .map(
+                  (option) =>
+                      DropdownMenuItem(value: option, child: Text(option)),
+                )
+                .toList(),
         onChanged: onChanged,
       ),
     );

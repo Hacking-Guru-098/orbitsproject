@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:orbitsproject/pages/dashboard.dart';
+import '../utils/error_logger.dart'; // ✅ Import your error logger
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -19,12 +20,11 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<void> loginUser() async {
     final String apiUrl =
-        "https://mitzvah-software-for-smart-air-curtain.onrender.com/login"; // Your API URL
+        "https://mitzvah-software-for-smart-air-curtain.onrender.com/login";
 
     final Map<String, dynamic> requestBody = {
-      "flag": selectedRole, // Selected role (client or admin)
+      "flag": selectedRole,
       selectedRole == "client" ? "clientinput" : "userinput": {
-        // Different key based on role
         "username": usernameController.text,
         "password": passwordController.text,
       },
@@ -51,13 +51,11 @@ class _LoginPageState extends State<LoginPage> {
             errorMessage = responseData;
           });
         } else {
-          // ✅ Store login info
           final prefs = await SharedPreferences.getInstance();
           await prefs.setBool('isLoggedIn', true);
           await prefs.setString('username', usernameController.text.trim());
           await prefs.setString('password', passwordController.text.trim());
 
-          // Navigate to Dashboard
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => DashboardPage()),
@@ -67,8 +65,21 @@ class _LoginPageState extends State<LoginPage> {
         setState(() {
           errorMessage = "Server Error. Try again!";
         });
+
+        // ✅ Log server error
+        await ErrorLogger.logError(
+          'Server responded with status: ${response.statusCode}',
+          response.body,
+          'N/A',
+        );
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
+      await ErrorLogger.logError(
+        'Login error',
+        e.toString(),
+        stackTrace.toString(),
+      );
+
       setState(() {
         errorMessage = "Network Error. Check your connection.";
       });
@@ -96,7 +107,7 @@ class _LoginPageState extends State<LoginPage> {
                       selectedRole = value!;
                     });
                   },
-                  items: [
+                  items: const [
                     DropdownMenuItem(value: "client", child: Text("Client")),
                     DropdownMenuItem(value: "admin", child: Text("Admin")),
                   ],
@@ -136,6 +147,8 @@ class _LoginPageState extends State<LoginPage> {
 
                 if (errorMessage.isNotEmpty)
                   Text(errorMessage, style: const TextStyle(color: Colors.red)),
+
+                const SizedBox(height: 15),
 
                 SizedBox(
                   width: double.infinity,
