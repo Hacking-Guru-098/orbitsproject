@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import '../utils/error_logger.dart';
 
 void showAddDeviceDialog(BuildContext context) {
   TextEditingController macAddressController = TextEditingController();
@@ -76,7 +77,7 @@ void showAddDeviceDialog(BuildContext context) {
                 );
 
                 if (response.statusCode == 200) {
-                  Navigator.pop(context); // Close the dialog
+                  Navigator.pop(context);
                   showDialog(
                     context: context,
                     builder:
@@ -92,13 +93,25 @@ void showAddDeviceDialog(BuildContext context) {
                         ),
                   );
                 } else {
+                  final errMsg = "AddDevice API failed: ${response.body}";
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Failed to add device")),
+                    SnackBar(content: Text("Failed to add device")),
+                  );
+                  await ErrorLogger.logError(
+                    "AddDevice API error",
+                    errMsg,
+                    jsonEncode(body),
                   );
                 }
               } catch (e) {
+                final errorDetails = "AddDevice Exception: ${e.toString()}";
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text("Error: ${e.toString()}")),
+                );
+                await ErrorLogger.logError(
+                  "AddDevice Exception",
+                  errorDetails,
+                  jsonEncode(body),
                 );
               }
             },

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import '../utils/error_logger.dart';
 
 void showAddUserDialog(BuildContext context) {
   TextEditingController usernameController = TextEditingController();
@@ -13,7 +14,7 @@ void showAddUserDialog(BuildContext context) {
   TextEditingController sectorController = TextEditingController();
   TextEditingController stateController = TextEditingController();
 
-  String userType = 'Client'; // Default
+  String userType = 'Client';
 
   showDialog(
     context: context,
@@ -156,39 +157,57 @@ void showAddUserDialog(BuildContext context) {
                             "state": state,
                           };
 
-                  final response = await http.post(
-                    Uri.parse(
-                      "https://mitzvah-software-for-smart-air-curtain.onrender.com/add2",
-                    ),
-                    headers: {"Content-Type": "application/json"},
-                    body: jsonEncode(body),
-                  );
-
-                  if (response.statusCode == 200) {
-                    Navigator.pop(context); // Close the dialog
-
-                    showDialog(
-                      context: context,
-                      builder: (context) {
-                        return AlertDialog(
-                          title: const Text("Success"),
-                          content: Text(
-                            "User added successfully as $userType!",
-                          ),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(context),
-                              child: const Text("Done"),
-                            ),
-                          ],
-                        );
-                      },
+                  try {
+                    final response = await http.post(
+                      Uri.parse(
+                        "https://mitzvah-software-for-smart-air-curtain.onrender.com/add2",
+                      ),
+                      headers: {"Content-Type": "application/json"},
+                      body: jsonEncode(body),
                     );
-                  } else {
+
+                    if (response.statusCode == 200) {
+                      Navigator.pop(context);
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return AlertDialog(
+                            title: const Text("Success"),
+                            content: Text(
+                              "User added successfully as $userType!",
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(context),
+                                child: const Text("Done"),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    } else {
+                      await ErrorLogger.logError(
+                        "Server error adding user",
+                        "Status code: ${response.statusCode}",
+                        response.body,
+                      );
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            "Failed to add user. Server said: ${response.body}",
+                          ),
+                        ),
+                      );
+                    }
+                  } catch (e) {
+                    await ErrorLogger.logError(
+                      "Exception adding user",
+                      e.toString(),
+                    );
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
+                      const SnackBar(
                         content: Text(
-                          "Failed to add user. Server responded with: ${response.body}",
+                          "Something went wrong. Please try again.",
                         ),
                       ),
                     );

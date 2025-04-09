@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import '../utils/error_logger.dart';
 
 class EditDeviceDialog extends StatefulWidget {
   const EditDeviceDialog({super.key});
@@ -21,57 +22,93 @@ class _EditDeviceDialogState extends State<EditDeviceDialog> {
 
   Future<void> fetchDeviceData() async {
     setState(() => loading = true);
-    final response = await http.post(
-      Uri.parse(
-        'https://mitzvah-software-for-smart-air-curtain.onrender.com/devicecheck',
-      ),
-      headers: {"Content-Type": "application/json"},
-      body: jsonEncode({"id": macController.text.trim()}),
+    final url = Uri.parse(
+      'https://mitzvah-software-for-smart-air-curtain.onrender.com/devicecheck',
     );
 
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
+    try {
+      final response = await http.post(
+        url,
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({"id": macController.text.trim()}),
+      );
 
-      deviceController.text = data['device-name'] ?? '';
-      wifiNameController.text = data['wifi_name'] ?? '';
-      wifiPassController.text = data['wifi_password'] ?? '';
-      clientController.text = data['client_select'] ?? '';
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
 
-      setState(() {
-        showEditForm = true;
-      });
-    } else {
+        deviceController.text = data['device-name'] ?? '';
+        wifiNameController.text = data['wifi_name'] ?? '';
+        wifiPassController.text = data['wifi_password'] ?? '';
+        clientController.text = data['client_select'] ?? '';
+
+        setState(() {
+          showEditForm = true;
+        });
+      } else {
+        await ErrorLogger.logError(
+          "Device fetch failed",
+          "Status: ${response.statusCode}",
+          "MAC: ${macController.text.trim()}",
+        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Device not found')));
+      }
+    } catch (e) {
+      await ErrorLogger.logError(
+        "Exception during device fetch",
+        e.toString(),
+        "MAC: ${macController.text.trim()}",
+      );
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('Device not found')));
+      ).showSnackBar(SnackBar(content: Text("Error: ${e.toString()}")));
     }
     setState(() => loading = false);
   }
 
   Future<void> updateDeviceData() async {
-    final response = await http.post(
-      Uri.parse(
-        'https://mitzvah-software-for-smart-air-curtain.onrender.com/add-data',
-      ),
-      headers: {"Content-Type": "application/json"},
-      body: jsonEncode({
-        "macAddress": macController.text.trim(),
-        "client": clientController.text.trim(),
-        "device_name": deviceController.text.trim(),
-        "wifi_name": wifiNameController.text.trim(),
-        "wifi_pass": wifiPassController.text.trim(),
-      }),
+    final url = Uri.parse(
+      'https://mitzvah-software-for-smart-air-curtain.onrender.com/add-data',
     );
 
-    if (response.statusCode == 200) {
-      Navigator.pop(context); // Close dialog on success
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Device updated successfully')),
+    try {
+      final response = await http.post(
+        url,
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({
+          "macAddress": macController.text.trim(),
+          "client": clientController.text.trim(),
+          "device_name": deviceController.text.trim(),
+          "wifi_name": wifiNameController.text.trim(),
+          "wifi_pass": wifiPassController.text.trim(),
+        }),
       );
-    } else {
+
+      if (response.statusCode == 200) {
+        Navigator.pop(context); // Close dialog on success
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Device updated successfully')),
+        );
+      } else {
+        await ErrorLogger.logError(
+          "Device update failed",
+          "Status: ${response.statusCode}",
+          "MAC: ${macController.text.trim()}",
+        );
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to update device')),
+        );
+      }
+    } catch (e) {
+      await ErrorLogger.logError(
+        "Exception during device update",
+        e.toString(),
+        "MAC: ${macController.text.trim()}",
+      );
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('Failed to update device')));
+      ).showSnackBar(SnackBar(content: Text("Error: ${e.toString()}")));
     }
   }
 
@@ -127,7 +164,7 @@ class _EditDeviceDialogState extends State<EditDeviceDialog> {
   }
 }
 
-// ✅ Add this to show the dialog from anywhere
+// ✅ Call this function to open the dialog
 void showUpdateDeviceDialog(BuildContext context) {
   showDialog(context: context, builder: (context) => const EditDeviceDialog());
 }

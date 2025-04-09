@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../utils/error_logger.dart';
 
 void showChangePasswordDialog(BuildContext context) {
   TextEditingController passwordController = TextEditingController();
@@ -30,7 +34,7 @@ void showChangePasswordDialog(BuildContext context) {
             child: const Text("Cancel"),
           ),
           TextButton(
-            onPressed: () {
+            onPressed: () async {
               String newPassword = passwordController.text.trim();
               String confirmPassword = confirmPasswordController.text.trim();
 
@@ -48,28 +52,78 @@ void showChangePasswordDialog(BuildContext context) {
                 return;
               }
 
-              Navigator.pop(context); // Close the dialog
+              SharedPreferences prefs = await SharedPreferences.getInstance();
+              String? username = prefs.getString('username');
 
-              // Show success confirmation
-              showDialog(
-                context: context,
-                builder: (context) {
-                  return AlertDialog(
-                    title: const Text("Password Changed"),
-                    content: const Text(
-                      "Your password has been successfully updated.",
-                    ),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(context),
-                        child: const Text("OK"),
-                      ),
-                    ],
+              if (username == null) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text("Username not found in local storage!"),
+                  ),
+                );
+                await ErrorLogger.logError(
+                  "ChangePassword Error",
+                  "Username not found in local storage",
+                );
+                return;
+              }
+
+              try {
+                final response = await http.post(
+                  Uri.parse(
+                    'https://mitzvah-software-for-smart-air-curtain.onrender.com/change-password',
+                  ),
+                  headers: {"Content-Type": "application/json"},
+                  body: jsonEncode({
+                    "username": username,
+                    "newpass": newPassword,
+                    "confpass": confirmPassword,
+                  }),
+                );
+
+                if (response.statusCode == 200 &&
+                    response.body.toLowerCase().contains("successfully")) {
+                  Navigator.pop(context); // Close the dialog
+
+                  // Show success confirmation
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        title: const Text("Password Changed"),
+                        content: const Text(
+                          "Your password has been successfully updated.",
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: const Text("OK"),
+                          ),
+                        ],
+                      );
+                    },
                   );
-                },
-              );
-
-              // TODO: Implement backend logic to update password
+                } else {
+                  String errorMsg = "API error: ${response.body}";
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text("Failed: ${response.body}")),
+                  );
+                  await ErrorLogger.logError(
+                    "ChangePassword API failed",
+                    errorMsg,
+                    "Username: $username",
+                  );
+                }
+              } catch (e) {
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: Text("Error: $e")));
+                await ErrorLogger.logError(
+                  "Exception in change password request",
+                  e.toString(),
+                  "Username: $username",
+                );
+              }
             },
             child: const Text("Change"),
           ),

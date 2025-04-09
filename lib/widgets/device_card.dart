@@ -14,6 +14,9 @@ class DeviceCard extends StatelessWidget {
     required this.location,
     required this.status,
     required this.emergency,
+    required this.state,
+    required this.pincode,
+    required this.sector,
   });
 
   final String name;
@@ -22,6 +25,9 @@ class DeviceCard extends StatelessWidget {
   final String district;
   final String city;
   final String location;
+  final String state;
+  final String pincode;
+  final String sector;
   final DeviceStatus status;
   final bool emergency;
 
@@ -78,6 +84,9 @@ class DeviceCard extends StatelessWidget {
                     _safeBuild(() => _buildRow("District:", district)),
                     _safeBuild(() => _buildRow("City:", city)),
                     _safeBuild(() => _buildRow("Location:", location)),
+                    _safeBuild(() => _buildRow("Sector:", sector)),
+                    _safeBuild(() => _buildRow("State:", state)),
+                    _safeBuild(() => _buildRow("Pincode:", pincode)),
                     _safeBuild(() => _buildStatusRow("Status:", status)),
                     _safeBuild(
                       () => _buildEmergencyRow("Emergency:", emergency),
@@ -123,10 +132,13 @@ class DeviceCard extends StatelessWidget {
             style: const TextStyle(color: Colors.white, fontSize: 14),
           ),
           Flexible(
-            child: Text(
-              value,
-              style: const TextStyle(color: Colors.white, fontSize: 14),
-              overflow: TextOverflow.ellipsis,
+            child: Tooltip(
+              message: value,
+              child: Text(
+                value,
+                style: const TextStyle(color: Colors.white, fontSize: 14),
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
           ),
         ],

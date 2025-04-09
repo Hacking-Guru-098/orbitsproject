@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import '../utils/error_logger.dart';
 
 void showDeleteDeviceDialog(BuildContext context) {
   TextEditingController macController = TextEditingController();
@@ -50,7 +51,6 @@ void showDeleteDeviceDialog(BuildContext context) {
                           response.body.toLowerCase().contains("ok")) {
                         Navigator.pop(context); // Close the first dialog
 
-                        // Show success dialog
                         showDialog(
                           context: context,
                           builder: (context) {
@@ -69,6 +69,11 @@ void showDeleteDeviceDialog(BuildContext context) {
                           },
                         );
                       } else {
+                        await ErrorLogger.logError(
+                          "Delete failed",
+                          "Status: ${response.statusCode}",
+                          "Body: ${response.body}",
+                        );
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
                             content: Text(
@@ -78,6 +83,11 @@ void showDeleteDeviceDialog(BuildContext context) {
                         );
                       }
                     } catch (e) {
+                      await ErrorLogger.logError(
+                        "Exception during device delete",
+                        e.toString(),
+                        "MAC: $macAddress",
+                      );
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text("Error: ${e.toString()}")),
                       );
