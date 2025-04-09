@@ -1,119 +1,133 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
-void showUpdateDeviceDialog(BuildContext context) {
-  TextEditingController macAddressController = TextEditingController();
-  TextEditingController newDeviceNameController = TextEditingController();
-  TextEditingController newDeviceModelController = TextEditingController();
-  bool isDeviceFound = false;
+class EditDeviceDialog extends StatefulWidget {
+  const EditDeviceDialog({super.key});
 
-  showDialog(
-    context: context,
-    builder: (context) {
-      return StatefulBuilder(
-        builder: (context, setState) {
-          return AlertDialog(
-            title: const Text("Update a Device"),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: macAddressController,
-                  decoration: const InputDecoration(
-                    labelText: "Enter MAC Address",
-                  ),
-                ),
-                const SizedBox(height: 10),
-                ElevatedButton(
-                  onPressed: () {
-                    String macAddress = macAddressController.text.trim();
-
-                    if (macAddress.isEmpty) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text("Please enter a valid MAC Address!"),
-                        ),
-                      );
-                      return;
-                    }
-
-                    // Simulating search
-                    bool found = _searchDevice(
-                      macAddress,
-                    ); // Replace with actual backend call
-
-                    setState(() {
-                      isDeviceFound = found;
-                    });
-
-                    if (!found) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("Device not found!")),
-                      );
-                    }
-                  },
-                  child: const Text("Search"),
-                ),
-                if (isDeviceFound) ...[
-                  const SizedBox(height: 10),
-                  TextField(
-                    controller: newDeviceNameController,
-                    decoration: const InputDecoration(
-                      labelText: "New Device Name",
-                    ),
-                  ),
-                  TextField(
-                    controller: newDeviceModelController,
-                    decoration: const InputDecoration(
-                      labelText: "New Device Model",
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context); // Close the update dialog
-
-                      // Show success confirmation
-                      showDialog(
-                        context: context,
-                        builder: (context) {
-                          return AlertDialog(
-                            title: const Text("Device Updated"),
-                            content: Text(
-                              "Device with MAC Address ${macAddressController.text} has been updated.",
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.pop(context),
-                                child: const Text("OK"),
-                              ),
-                            ],
-                          );
-                        },
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
-                    ),
-                    child: const Text("Update"),
-                  ),
-                ],
-              ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text("Cancel"),
-              ),
-            ],
-          );
-        },
-      );
-    },
-  );
+  @override
+  State<EditDeviceDialog> createState() => _EditDeviceDialogState();
 }
 
-// Dummy function to simulate device search (Replace with actual backend call)
-bool _searchDevice(String macAddress) {
-  List<String> mockDevices = ["00:1A:2B:3C:4D:5E", "AA:BB:CC:DD:EE:FF"];
-  return mockDevices.contains(macAddress);
+class _EditDeviceDialogState extends State<EditDeviceDialog> {
+  final TextEditingController macController = TextEditingController();
+  final TextEditingController deviceController = TextEditingController();
+  final TextEditingController wifiNameController = TextEditingController();
+  final TextEditingController wifiPassController = TextEditingController();
+  final TextEditingController clientController = TextEditingController();
+
+  bool loading = false;
+  bool showEditForm = false;
+
+  Future<void> fetchDeviceData() async {
+    setState(() => loading = true);
+    final response = await http.post(
+      Uri.parse(
+        'https://mitzvah-software-for-smart-air-curtain.onrender.com/devicecheck',
+      ),
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({"id": macController.text.trim()}),
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+
+      deviceController.text = data['device-name'] ?? '';
+      wifiNameController.text = data['wifi_name'] ?? '';
+      wifiPassController.text = data['wifi_password'] ?? '';
+      clientController.text = data['client_select'] ?? '';
+
+      setState(() {
+        showEditForm = true;
+      });
+    } else {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Device not found')));
+    }
+    setState(() => loading = false);
+  }
+
+  Future<void> updateDeviceData() async {
+    final response = await http.post(
+      Uri.parse(
+        'https://mitzvah-software-for-smart-air-curtain.onrender.com/add-data',
+      ),
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({
+        "macAddress": macController.text.trim(),
+        "client": clientController.text.trim(),
+        "device_name": deviceController.text.trim(),
+        "wifi_name": wifiNameController.text.trim(),
+        "wifi_pass": wifiPassController.text.trim(),
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      Navigator.pop(context); // Close dialog on success
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Device updated successfully')),
+      );
+    } else {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Failed to update device')));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Edit Device'),
+      content: SizedBox(
+        width: 300,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: macController,
+              decoration: const InputDecoration(labelText: 'MAC Address'),
+            ),
+            const SizedBox(height: 10),
+            ElevatedButton(
+              onPressed: loading ? null : fetchDeviceData,
+              child:
+                  loading
+                      ? const CircularProgressIndicator()
+                      : const Text('Fetch Device'),
+            ),
+            if (showEditForm) ...[
+              const SizedBox(height: 20),
+              TextField(
+                controller: deviceController,
+                decoration: const InputDecoration(labelText: 'Device Name'),
+              ),
+              TextField(
+                controller: wifiNameController,
+                decoration: const InputDecoration(labelText: 'WiFi Name'),
+              ),
+              TextField(
+                controller: wifiPassController,
+                decoration: const InputDecoration(labelText: 'WiFi Password'),
+              ),
+              TextField(
+                controller: clientController,
+                decoration: const InputDecoration(labelText: 'Client'),
+              ),
+              const SizedBox(height: 10),
+              ElevatedButton(
+                onPressed: updateDeviceData,
+                child: const Text('Save Changes'),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ✅ Add this to show the dialog from anywhere
+void showUpdateDeviceDialog(BuildContext context) {
+  showDialog(context: context, builder: (context) => const EditDeviceDialog());
 }

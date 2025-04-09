@@ -6,6 +6,8 @@ void showAddDeviceDialog(BuildContext context) {
   TextEditingController macAddressController = TextEditingController();
   TextEditingController clientNameController = TextEditingController();
   TextEditingController deviceNameController = TextEditingController();
+  TextEditingController wifiNameController = TextEditingController();
+  TextEditingController wifiPassController = TextEditingController();
 
   showDialog(
     context: context,
@@ -19,6 +21,12 @@ void showAddDeviceDialog(BuildContext context) {
               _buildTextField(macAddressController, "MAC Address"),
               _buildTextField(clientNameController, "Client Name"),
               _buildTextField(deviceNameController, "Device Name"),
+              _buildTextField(wifiNameController, "WiFi Name"),
+              _buildTextField(
+                wifiPassController,
+                "WiFi Password",
+                isPassword: true,
+              ),
             ],
           ),
         ),
@@ -32,8 +40,16 @@ void showAddDeviceDialog(BuildContext context) {
               final mac = macAddressController.text.trim();
               final client = clientNameController.text.trim();
               final device = deviceNameController.text.trim();
+              final wifiName = wifiNameController.text.trim();
+              final wifiPass = wifiPassController.text.trim();
 
-              if (mac.isEmpty || client.isEmpty || device.isEmpty) {
+              if ([
+                mac,
+                client,
+                device,
+                wifiName,
+                wifiPass,
+              ].any((e) => e.isEmpty)) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text("All fields are required!")),
                 );
@@ -48,6 +64,8 @@ void showAddDeviceDialog(BuildContext context) {
                 "macAddress": mac,
                 "client": client,
                 "device_name": device,
+                "wifi_name": wifiName,
+                "wifi_pass": wifiPass,
               };
 
               try {
@@ -59,8 +77,6 @@ void showAddDeviceDialog(BuildContext context) {
 
                 if (response.statusCode == 200) {
                   Navigator.pop(context); // Close the dialog
-
-                  // Show success
                   showDialog(
                     context: context,
                     builder:
@@ -106,7 +122,10 @@ Widget _buildTextField(
       controller: controller,
       obscureText: isPassword,
       keyboardType: keyboardType,
-      decoration: InputDecoration(labelText: label),
+      decoration: InputDecoration(
+        labelText: label,
+        border: const OutlineInputBorder(),
+      ),
     ),
   );
 }

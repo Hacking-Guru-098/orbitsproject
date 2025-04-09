@@ -9,6 +9,9 @@ void showAddUserDialog(BuildContext context) {
   TextEditingController districtController = TextEditingController();
   TextEditingController cityController = TextEditingController();
   TextEditingController locationController = TextEditingController();
+  TextEditingController pincodeController = TextEditingController();
+  TextEditingController sectorController = TextEditingController();
+  TextEditingController stateController = TextEditingController();
 
   String userType = 'Client'; // Default
 
@@ -74,6 +77,19 @@ void showAddUserDialog(BuildContext context) {
                       controller: locationController,
                       decoration: const InputDecoration(labelText: "Location"),
                     ),
+                    TextField(
+                      controller: pincodeController,
+                      decoration: const InputDecoration(labelText: "Pincode"),
+                      keyboardType: TextInputType.number,
+                    ),
+                    TextField(
+                      controller: sectorController,
+                      decoration: const InputDecoration(labelText: "Sector"),
+                    ),
+                    TextField(
+                      controller: stateController,
+                      decoration: const InputDecoration(labelText: "State"),
+                    ),
                   ],
                 ],
               ),
@@ -91,6 +107,9 @@ void showAddUserDialog(BuildContext context) {
                   String district = districtController.text.trim();
                   String city = cityController.text.trim();
                   String location = locationController.text.trim();
+                  String pincode = pincodeController.text.trim();
+                  String sector = sectorController.text.trim();
+                  String state = stateController.text.trim();
 
                   if (username.isEmpty || password.isEmpty) {
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -105,7 +124,10 @@ void showAddUserDialog(BuildContext context) {
                       (name.isEmpty ||
                           district.isEmpty ||
                           city.isEmpty ||
-                          location.isEmpty)) {
+                          location.isEmpty ||
+                          pincode.isEmpty ||
+                          sector.isEmpty ||
+                          state.isEmpty)) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         content: Text("Please fill all client fields!"),
@@ -129,6 +151,9 @@ void showAddUserDialog(BuildContext context) {
                             "district": district,
                             "city": city,
                             "location": location,
+                            "pincode": pincode,
+                            "sector": sector,
+                            "state": state,
                           };
 
                   final response = await http.post(
