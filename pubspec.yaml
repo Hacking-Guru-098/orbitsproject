@@ -15,6 +15,7 @@ dependencies:
   http: ^1.3.0
   shared_preferences: ^2.5.3
   path_provider: ^2.1.1  # ✅ Added for local file access
+  permission_handler: ^11.0.1
 
 dev_dependencies:
   flutter_test:
@@ -27,8 +28,9 @@ flutter:
 
   assets:
     - assets/logo.png
+    - assets/Icon-512.png  # Fixed indentation for assets
 
 flutter_launcher_icons:
   android: true
   ios: true
-  image_path: "assets/logo.png"
+  image_path: "assets/Icon-512.png"  # Make sure this is the correct image for your app icon
