@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:async'; // Add this import for Timer
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../utils/error_logger.dart'; // Make sure this path is correct
@@ -15,11 +16,32 @@ class DeviceDetailPage extends StatefulWidget {
 class _DeviceDetailPageState extends State<DeviceDetailPage> {
   Map<String, dynamic>? deviceData;
   bool isLoading = true;
+  DateTime? lastUpdated;
+  Timer? _refreshTimer; // Add a Timer variable
 
   @override
   void initState() {
     super.initState();
     fetchDeviceData();
+    // Start the automatic refresh timer
+    _startAutoRefresh();
+  }
+
+  // Add method to start auto-refresh
+  void _startAutoRefresh() {
+    // Cancel any existing timer first
+    _refreshTimer?.cancel();
+    // Create a new timer that fires every 5 seconds
+    _refreshTimer = Timer.periodic(const Duration(seconds: 5), (timer) {
+      fetchDeviceData();
+    });
+  }
+
+  @override
+  void dispose() {
+    // Cancel the timer when the widget is disposed
+    _refreshTimer?.cancel();
+    super.dispose();
   }
 
   Future<void> fetchDeviceData() async {
@@ -39,6 +61,7 @@ class _DeviceDetailPageState extends State<DeviceDetailPage> {
         final List data = jsonDecode(response.body);
         setState(() {
           deviceData = data.isNotEmpty ? data[0] : null;
+          lastUpdated = DateTime.now();
           isLoading = false;
         });
       } else {
@@ -210,7 +233,7 @@ class _DeviceDetailPageState extends State<DeviceDetailPage> {
                       ),
                       const SizedBox(height: 15),
                       Text(
-                        "Last Updated Data on : ${deviceData != null ? DateTime.fromMillisecondsSinceEpoch(deviceData!['current_dt']).toString() : "N/A"}",
+                        "Last Updated Data on : ${lastUpdated != null ? lastUpdated.toString() : "N/A"}",
                         style: const TextStyle(
                           fontSize: 14,
                           color: Colors.black,
