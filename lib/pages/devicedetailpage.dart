@@ -46,9 +46,7 @@ class _DeviceDetailPageState extends State<DeviceDetailPage> {
 
   Future<void> fetchDeviceData() async {
     setState(() => isLoading = true);
-    final url = Uri.parse(
-      'https://mitzvah-software-for-smart-air-curtain.onrender.com/find',
-    );
+    final url = Uri.parse('http://13.203.214.225:3000/find');
 
     try {
       final response = await http.post(
@@ -90,12 +88,8 @@ class _DeviceDetailPageState extends State<DeviceDetailPage> {
     final currentStatus = deviceData!['Status'];
     final newStatus = currentStatus == 1 ? 0 : 1;
 
-    final urlChange = Uri.parse(
-      'https://mitzvah-software-for-smart-air-curtain.onrender.com/change',
-    );
-    final urlRelayChange = Uri.parse(
-      'https://mitzvah-software-for-smart-air-curtain.onrender.com/relayChange',
-    );
+    final urlChange = Uri.parse('http://13.203.214.225:3000/change');
+    final urlRelayChange = Uri.parse('http://13.203.214.225:3000/relayChange');
     final body = jsonEncode({'st': newStatus, 'id': widget.deviceId});
 
     try {
